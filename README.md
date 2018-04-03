@@ -1,2 +1,3 @@
 # frida-ejs
-Frida examples
+
+Go to https://github.com/poxyran/misc for more.
