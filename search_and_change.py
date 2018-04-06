@@ -59,10 +59,10 @@ if __name__ == '__main__':
 	hex_string = '{:02x}'.format(int(sys.argv[2]))
 	if len(hex_string) % 2 == 1:
 	        hex_string = '0' + hex_string
-	lst = re.findall(r'.{2}', hex_string)
+	bytes = re.findall(r'.{2}', hex_string)
 	hex_string = ''
-	for elem in lst:
-	        hex_string = hex_string + ' ' + elem
+	for byte in bytes:
+	        hex_string = hex_string + ' ' + byte
 	pattern = hex_string[1:]
 	
 	new_value = int(sys.argv[3])
