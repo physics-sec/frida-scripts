@@ -31,7 +31,7 @@ def main(target_process, direccion):
 
 if __name__ == '__main__':
 	if len(sys.argv) < 2:
-		print('Usage: {} <process name or PID>'.format(__file__))
+		print('Usage: {} <process name or PID> <function position>'.format(__file__))
 		sys.exit(1)
 
 	if sys.argv[1].isdigit():
