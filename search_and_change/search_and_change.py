@@ -26,8 +26,12 @@ def main(target_process, pattern, new_value):
 			}
 			Memory.scan(range.base, range.size, '%s', {
 				onMatch: function(address, size){
-						console.log('[+] Pattern found at: ' + address.toString());
-						console.log(Memory.readInt(address));
+						//console.log('[+] Pattern found at: ' + address.toString());
+						num = Memory.readInt(address);
+						new = '%d'
+						if(num == new){
+							console.log('num encontrado at: ' + address.toString());
+						}
 					}, 
 				onError: function(reason){
 						console.log('[!] There was an error scanning memory:' + reason);
