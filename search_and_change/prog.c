@@ -4,7 +4,7 @@
 
 int main(int argc, char * argv[])
 {
-	int a = 123456879;
+	int a = 12345;
 	printf("%d\n", a);
 	sleep(10);
 	printf("%d\n", a);
