@@ -6,7 +6,7 @@ int main(int argc, char * argv[])
 {
 	int a = 123456879;
 	printf("%d\n", a);
-	sleep(5);
+	sleep(10);
 	printf("%d\n", a);
 	return 0;
 }
