@@ -55,6 +55,9 @@ if __name__ == '__main__':
 		target_process = sys.argv[1]
 
 	old_value = int(sys.argv[2])
+
+	new_value = int(sys.argv[3])
+
 	hex_string = '{:02x}'.format(old_value)
 	if len(hex_string) % 2 == 1:
 	        hex_string = '0' + hex_string
@@ -63,7 +66,5 @@ if __name__ == '__main__':
 	for byte in bytes:
 	        hex_string = byte + ' ' + hex_string # little indian
 	pattern = hex_string[:-1]
-
-	new_value = int(sys.argv[3])
 	
 	main(target_process, pattern, old_value, new_value)
