@@ -14,7 +14,11 @@ def on_message(message, data):
 		print(message)
 
 def main(target_process, pattern, old_value, new_value):
-	session = frida.attach(target_process)
+	try:
+		session = frida.attach(target_process)
+	except:
+		print('No existe el proceso')
+		sys.exit(1)
 	script = session.create_script("""
 		var ranges = Process.enumerateRangesSync({protection: 'rw-', coalesce: true});
 		var range;
@@ -49,7 +53,7 @@ def main(target_process, pattern, old_value, new_value):
 
 if __name__ == '__main__':
 	if len(sys.argv) < 4:
-		print('Usage: {} <process name or PID> <old_value> <new value>'.format(__file__))
+		print('Usage: {} <process name or PID> <old value> <new value>'.format(__file__))
 		sys.exit(1)
 
 	if sys.argv[1].isdigit():
