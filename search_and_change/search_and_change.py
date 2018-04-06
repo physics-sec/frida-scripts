@@ -65,6 +65,13 @@ if __name__ == '__main__':
 	        hex_string = hex_string + ' ' + byte
 	pattern = hex_string[1:]
 	
+	pattern = pattern.split(' ')
+	pat = list(reversed(pattern))
+	pattern = ''
+	for p in pat:
+		pattern = pattern + ' ' + p
+	pattern = pattern[1:]
+
 	new_value = int(sys.argv[3])
 	
 	main(target_process, pattern, new_value)
