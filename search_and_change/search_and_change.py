@@ -27,8 +27,7 @@ def main(target_process, pattern, new_value):
 			Memory.scan(range.base, range.size, '%s', {
 				onMatch: function(address, size){
 						console.log('[+] Pattern found at: ' + address.toString());
-						Memory.writeInt(address, '%d');
-						console.log('[+] Changed to new_value');
+						console.log(Memory.readInt(address));
 					}, 
 				onError: function(reason){
 						console.log('[!] There was an error scanning memory:' + reason);
@@ -62,15 +61,8 @@ if __name__ == '__main__':
 	bytes = re.findall(r'.{2}', hex_string)
 	hex_string = ''
 	for byte in bytes:
-	        hex_string = hex_string + ' ' + byte
-	pattern = hex_string[1:]
-	
-	pattern = pattern.split(' ')
-	pat = list(reversed(pattern))
-	pattern = ''
-	for p in pat:
-		pattern = pattern + ' ' + p
-	pattern = pattern[1:]
+	        hex_string = byte + ' ' + hex_string # little indian
+	pattern = hex_string[:-1]
 
 	new_value = int(sys.argv[3])
 	
