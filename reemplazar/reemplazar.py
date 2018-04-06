@@ -13,7 +13,11 @@ def on_message(message, data):
 		print(message)
 
 def main(target_process):
-	session = frida.attach(target_process)
+	try:
+		session = frida.attach(target_process)
+	except:
+		print('No existe el proceso')
+		sys.exit(1)
 	script = session.create_script("""
 	Interceptor.replace(ptr(0x4005d6), new NativeCallback(function (pointer) {
 		send("puntero:" + pointer.toString())
