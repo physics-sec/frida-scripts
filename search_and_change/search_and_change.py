@@ -13,10 +13,10 @@ def on_message(message, data):
 	else:
 		print(message)
 
-def main(target_process, pattern, new_value):
+def main(target_process, pattern, old_value, new_value):
 	session = frida.attach(target_process)
 	script = session.create_script("""
-		var ranges = Process.enumerateRangesSync({protection: 'r--', coalesce: true});
+		var ranges = Process.enumerateRangesSync({protection: 'rw-', coalesce: true});
 		var range;
 
 		function processNext(){
@@ -26,14 +26,13 @@ def main(target_process, pattern, new_value):
 			}
 			Memory.scan(range.base, range.size, '%s', {
 				onMatch: function(address, size){
-						//console.log('[+] Pattern found at: ' + address.toString());
-						var num = Memory.readInt(address);
-						if(num == %d){
-							console.log('num encontrado at: ' + address.toString());
+						var numEncontrado = Memory.readInt(address);
+						if(numEncontrado == %d){
+							Memory.writeInt(address, %d);
 						}
 					}, 
 				onError: function(reason){
-						console.log('[!] There was an error scanning memory:' + reason);
+						//console.log('[!] There was an error scanning memory:' + reason);
 					}, 
 				onComplete: function(){
 						processNext();
@@ -41,7 +40,7 @@ def main(target_process, pattern, new_value):
 				});
 		}
 		processNext();
-""" % (pattern, new_value))
+""" % (pattern, old_value, new_value))
 
 	script.on('message', on_message)
 	script.load()
@@ -58,7 +57,8 @@ if __name__ == '__main__':
 	else:
 		target_process = sys.argv[1]
 
-	hex_string = '{:02x}'.format(int(sys.argv[2]))
+	old_value = int(sys.argv[2])
+	hex_string = '{:02x}'.format(old_value)
 	if len(hex_string) % 2 == 1:
 	        hex_string = '0' + hex_string
 	bytes = re.findall(r'.{2}', hex_string)
@@ -69,4 +69,4 @@ if __name__ == '__main__':
 
 	new_value = int(sys.argv[3])
 	
-	main(target_process, pattern, new_value)
+	main(target_process, pattern, old_value, new_value)
