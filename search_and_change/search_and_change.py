@@ -31,7 +31,7 @@ def main(target_process, pattern, new_value):
 						console.log('[+] Changed to new_value');
 					}, 
 				onError: function(reason){
-						console.log('[!] There was an error scanning memory');
+						console.log('[!] There was an error scanning memory:' + reason);
 					}, 
 				onComplete: function(){
 						processNext();
