@@ -13,7 +13,11 @@ def on_message(message, data):
 		print(message)
 
 def main(target_process):
-	session = frida.attach(target_process)
+	try:
+		session = frida.attach(target_process)
+	except:
+		print('No existe el proceso')
+		sys.exit(1)
 	script = session.create_script("""
 	pointer = Module.findExportByName(null, "printf");
 	dir = Memory.allocUtf8String("buenos dias numero %d");
