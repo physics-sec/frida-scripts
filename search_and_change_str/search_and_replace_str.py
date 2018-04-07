@@ -14,7 +14,7 @@ def on_message(message, data):
 	else:
 		print(message)
 
-def main(target_process, pattern, old_value, new_value):
+def main(target_process, pattern, old_string, new_string):
 	try:
 		session = frida.attach(target_process)
 	except:
@@ -37,7 +37,7 @@ def main(target_process, pattern, old_value, new_value):
 				onComplete: function(){}
 			});
 		}
-""" % (pattern, old_value, new_value))
+""" % (pattern, old_string, new_string))
 
 	script.on('message', on_message)
 	script.load()
@@ -46,7 +46,7 @@ def main(target_process, pattern, old_value, new_value):
 
 if __name__ == '__main__':
 	if len(sys.argv) < 4:
-		print('Usage: {} <process name or PID> <old value> <new value>'.format(__file__))
+		print('Usage: {} <process name or PID> <old string> <new string>'.format(__file__))
 		sys.exit(1)
 
 	if sys.argv[1].isdigit():
@@ -54,16 +54,16 @@ if __name__ == '__main__':
 	else:
 		target_process = sys.argv[1]
 
-	old_value = sys.argv[2]
+	old_string = sys.argv[2]
 
-	new_value = sys.argv[3]
+	new_string = sys.argv[3]
 
 	pattern = ''
-	for char in old_value:
+	for char in old_string:
 		byte = str(hex(ord(char)))[2:]
 		if len(byte) == 1:
 			byte = '0' + byte
 		pattern += ' ' + byte
 	pattern = pattern[1:]
 	
-	main(target_process, pattern, old_value, new_value)
+	main(target_process, pattern, old_string, new_string)
