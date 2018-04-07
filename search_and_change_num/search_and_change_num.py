@@ -21,7 +21,7 @@ def main(target_process, pattern, old_value, new_value, usb):
 		else:
 			session = frida.attach(target_process)
 	except:
-		sys.exit('The process does not exist')
+		sys.exit('An error ocurred while attaching with the procces')
 	script = session.create_script("""
 		var ranges = Process.enumerateRangesSync({protection: 'rw-', coalesce: true});
 
