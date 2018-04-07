@@ -3,6 +3,7 @@
 
 import sys
 import frida
+import time
 import re
 
 def on_message(message, data):
@@ -17,31 +18,30 @@ def main(target_process, pattern, old_value, new_value):
 	try:
 		session = frida.attach(target_process)
 	except:
-		print('No existe el proceso')
-		sys.exit(1)
+		sys.exit('The process does not exist')
 	script = session.create_script("""
 		var ranges = Process.enumerateRangesSync({protection: 'rw-', coalesce: true});
 
-		for (var i = 0, len = ranges.length; i < len; i++) {
+		for (var i = 0, len = ranges.length; i < len; i++)
+		{
 			Memory.scan(ranges[i].base, ranges[i].size, '%s', {
 				onMatch: function(address, size){
-						var numEncontrado = Memory.readInt(address);
-						if(numEncontrado == %d){
-							Memory.writeInt(address, %d);
-						}
-					}, 
+					var numEncontrado = Memory.readInt(address);
+					if(numEncontrado == %d){
+						Memory.writeInt(address, %d);
+					}
+				},
 				onError: function(reason){
-						//console.log('[!] There was an error scanning memory:' + reason);
-					}, 
+					//console.log('[!] There was an error scanning memory:' + reason);
+				},
 				onComplete: function(){}
-				});
+			});
 		}
-
 """ % (pattern, old_value, new_value))
 
 	script.on('message', on_message)
 	script.load()
-	input('[!] Press <Enter> to detach from instrumented program.\n\n')
+	time.sleep(3)
 	session.detach()
 
 if __name__ == '__main__':
