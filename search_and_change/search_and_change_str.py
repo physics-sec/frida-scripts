@@ -14,11 +14,14 @@ def on_message(message, data):
 	else:
 		print(message)
 
-def main(target_process, pattern, old_string, new_string):
+def main(target_process, pattern, old_string, new_string, usb):
 	try:
-		session = frida.attach(target_process)
+		if usb:
+			session = frida.get_usb_device().attach(target_process)
+		else:
+			session = frida.attach(target_process)
 	except:
-		sys.exit('The process does not exist')
+		sys.exit('An error ocurred while attaching with the procces')
 	script = session.create_script("""
 		var ranges = Process.enumerateRangesSync({protection: 'rw-', coalesce: true});
 
@@ -45,18 +48,21 @@ def main(target_process, pattern, old_string, new_string):
 	session.detach()
 
 if __name__ == '__main__':
-	if len(sys.argv) < 4:
-		print('Usage: {} <process name or PID> <old string> <new string>'.format(__file__))
+	argc = len(sys.argv)
+	if argc < 4 and argc > 5:
+		print('Usage: {} (-U) <process name or PID> <old string> <new string>'.format(__file__))
 		sys.exit(1)
 
-	if sys.argv[1].isdigit():
-		target_process = int(sys.argv[1])
+	usb = sys.argv[2] == '-U'
+
+	if sys.argv[argc - 3].isdigit():
+		target_process = int(sys.argv[argc - 3])
 	else:
-		target_process = sys.argv[1]
+		target_process = sys.argv[argc - 3]
 
-	old_string = sys.argv[2]
+	old_string = sys.argv[argc - 2]
 
-	new_string = sys.argv[3]
+	new_string = sys.argv[argc - 1]
 
 	pattern = ''
 	for char in old_string:
@@ -66,4 +72,4 @@ if __name__ == '__main__':
 		pattern += ' ' + byte
 	pattern = pattern[1:]
 	
-	main(target_process, pattern, old_string, new_string)
+	main(target_process, pattern, old_string, new_string, usb)
