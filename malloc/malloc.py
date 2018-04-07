@@ -16,8 +16,7 @@ def main(target_process):
 	try:
 		session = frida.attach(target_process)
 	except:
-		print('No existe el proceso')
-		sys.exit(1)
+		sys.exit('The process does not exist')
 	script = session.create_script("""
 	var mallocPtr = Module.findExportByName(null, "malloc");
 	var malloc = new NativeFunction(mallocPtr, 'pointer', ['int']);
