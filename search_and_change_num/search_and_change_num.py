@@ -14,9 +14,12 @@ def on_message(message, data):
 	else:
 		print(message)
 
-def main(target_process, pattern, old_value, new_value):
+def main(target_process, pattern, old_value, new_value, usb):
 	try:
-		session = frida.attach(target_process)
+		if usb:
+			session = frida.get_usb_device().attach(target_process)
+		else:
+			session = frida.attach(target_process)
 	except:
 		sys.exit('The process does not exist')
 	script = session.create_script("""
@@ -45,28 +48,22 @@ def main(target_process, pattern, old_value, new_value):
 	session.detach()
 
 if __name__ == '__main__':
-	if len(sys.argv) < 4:
-		print('Usage: {} <process name or PID> (little|big) <old value> <new value>'.format(__file__))
+	argc = len(sys.argv)
+	if argc < 4 or argc > 6:
+		print('Usage: {} (-U) (little|big) <process name or PID> <old value> <new value>'.format(__file__))
 		sys.exit(1)
 
-	if sys.argv[1].isdigit():
-		target_process = int(sys.argv[1])
+	usb = sys.argv[1] == '-U' or sys.argv[2] == '-U'
+	isLittleEndian = sys.argv[1] != 'big' and sys.argv[2] != 'big'
+
+	if sys.argv[argc - 3].isdigit():
+		target_process = int(sys.argv[argc - 3])
 	else:
-		target_process = sys.argv[1]
+		target_process = sys.argv[argc - 3]
 
-	isLittleEndian = True
-	if len(sys.argv) == 5:
-		start = 2
-		if sys.argv[2] == 'big':
-			isLittleEndian = False
-		elif sys.argv[2] != 'little':
-			sys.exit('Endianness must be little or big')
-	else:
-		start = 1
+	old_value = int(sys.argv[argc - 2])
 
-	old_value = int(sys.argv[start + 1])
-
-	new_value = int(sys.argv[start + 2])
+	new_value = int(sys.argv[argc - 1])
 
 	hex_string = '{:02x}'.format(old_value)
 	if len(hex_string) % 2 == 1:
@@ -82,4 +79,4 @@ if __name__ == '__main__':
 				hex_string = hex_string + ' ' + byte # big indian
 		pattern = hex_string[1:]
 
-	main(target_process, pattern, old_value, new_value)
+	main(target_process, pattern, old_value, new_value, usb)
