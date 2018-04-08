@@ -50,8 +50,11 @@ def main(target_process, pattern, old_value, new_value, usb):
 if __name__ == '__main__':
 	argc = len(sys.argv)
 	if argc < 4 or argc > 6:
-		print('Usage: {} (-U) (little|big) <process name or PID> <old value> <new value>'.format(__file__))
-		sys.exit(1)
+		usage = 'Usage: {} (-U) (little|big) <process name or PID> <old value> <new value>'.format(__file__)
+		usage += '\nUse the little (default) or big parameter to specify the endiannes.'
+		usage += '\nThe -U option is for mobile instrumentation.'
+		usage += '\nOld value is the number to be replace with new value'
+		sys.exit(usage)
 
 	usb = sys.argv[1] == '-U' or sys.argv[2] == '-U'
 	isLittleEndian = sys.argv[1] != 'big' and sys.argv[2] != 'big'

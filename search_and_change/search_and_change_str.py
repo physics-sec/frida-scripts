@@ -49,9 +49,11 @@ def main(target_process, pattern, old_string, new_string, usb):
 
 if __name__ == '__main__':
 	argc = len(sys.argv)
-	if argc < 4 and argc > 5:
-		print('Usage: {} (-U) <process name or PID> <old string> <new string>'.format(__file__))
-		sys.exit(1)
+	if argc < 4 or argc > 5:
+		usage = 'Usage: {} (-U) <process name or PID> <old string> <new string>'.format(__file__)
+		usage += '\nThe -U option is for mobile instrumentation.'
+		usage += '\nOld string is the utf-8 string to be replace with new string'
+		sys.exit(usage)
 
 	usb = sys.argv[2] == '-U'
 
