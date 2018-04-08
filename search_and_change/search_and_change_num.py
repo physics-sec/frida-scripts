@@ -31,7 +31,11 @@ def main(target_process, pattern, old_value, new_value, usb):
 				onMatch: function(address, size){
 					var numEncontrado = Memory.readInt(address);
 					if(numEncontrado == %d){
+						console.log('Encontrado:' + address);
 						Memory.writeInt(address, %d);
+					}
+					else{
+						console.log('No encontado:' + address);
 					}
 				},
 				onError: function(reason){
@@ -47,7 +51,7 @@ def main(target_process, pattern, old_value, new_value, usb):
 	time.sleep(3)
 	session.detach()
 
-def get_pattern(number, isLittleEndian):
+def get_pattern(number, isLittleEndian, registerSize):
 	hex_string = '{:02x}'.format(number)
 	if len(hex_string) % 2 == 1:
 		hex_string = '0' + hex_string
@@ -57,10 +61,18 @@ def get_pattern(number, isLittleEndian):
 		for byte in bytes:
 			hex_string = byte + ' ' + hex_string # little indian
 		pattern = hex_string[:-1]
+		cantBytes = len(pattern.split(' '))
+		if cantBytes < registerSize:
+			for x in range(registerSize - cantBytes):
+				pattern = pattern + ' 00'
 	else:
 		for byte in bytes:
 			hex_string = hex_string + ' ' + byte # big indian
 		pattern = hex_string[1:]
+		cantBytes = len(pattern.split(' '))
+		if cantBytes < registerSize:
+			for x in range(registerSize - cantBytes):
+				pattern = '00 ' + pattern
 	return pattern
 
 if __name__ == '__main__':
@@ -74,6 +86,7 @@ if __name__ == '__main__':
 
 	usb = sys.argv[1] == '-U' or sys.argv[2] == '-U'
 	isLittleEndian = sys.argv[1] != 'big' and sys.argv[2] != 'big'
+	registerSize = 8
 
 	if sys.argv[argc - 3].isdigit():
 		target_process = int(sys.argv[argc - 3])
@@ -84,6 +97,7 @@ if __name__ == '__main__':
 
 	new_value = int(sys.argv[argc - 1])
 
-	pattern = get_pattern(old_value, isLittleEndian)
+	pattern = get_pattern(old_value, isLittleEndian, registerSize)
 
+	print(pattern)
 	main(target_process, pattern, old_value, new_value, usb)
