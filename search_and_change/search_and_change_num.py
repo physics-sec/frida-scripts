@@ -47,6 +47,22 @@ def main(target_process, pattern, old_value, new_value, usb):
 	time.sleep(3)
 	session.detach()
 
+def get_pattern(number, isLittleEndian):
+	hex_string = '{:02x}'.format(number)
+	if len(hex_string) % 2 == 1:
+		hex_string = '0' + hex_string
+	bytes = re.findall(r'.{2}', hex_string)
+	hex_string = ''
+	if isLittleEndian:
+		for byte in bytes:
+			hex_string = byte + ' ' + hex_string # little indian
+		pattern = hex_string[:-1]
+	else:
+		for byte in bytes:
+			hex_string = hex_string + ' ' + byte # big indian
+		pattern = hex_string[1:]
+	return pattern
+
 if __name__ == '__main__':
 	argc = len(sys.argv)
 	if argc < 4 or argc > 6:
@@ -68,18 +84,6 @@ if __name__ == '__main__':
 
 	new_value = int(sys.argv[argc - 1])
 
-	hex_string = '{:02x}'.format(old_value)
-	if len(hex_string) % 2 == 1:
-	        hex_string = '0' + hex_string
-	bytes = re.findall(r'.{2}', hex_string)
-	hex_string = ''
-	if isLittleEndian:
-		for byte in bytes:
-				hex_string = byte + ' ' + hex_string # little indian
-		pattern = hex_string[:-1]
-	else:
-		for byte in bytes:
-				hex_string = hex_string + ' ' + byte # big indian
-		pattern = hex_string[1:]
+	pattern = get_pattern(old_value, isLittleEndian)
 
 	main(target_process, pattern, old_value, new_value, usb)

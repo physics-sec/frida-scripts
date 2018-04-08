@@ -47,6 +47,15 @@ def main(target_process, pattern, old_string, new_string, usb):
 	time.sleep(3)
 	session.detach()
 
+def get_pattern(string):
+	pattern = ''
+	for char in string:
+		byte = str(hex(ord(char)))[2:]
+		if len(byte) == 1:
+			byte = '0' + byte
+		pattern = pattern + ' ' + byte
+	return pattern[1:]
+
 if __name__ == '__main__':
 	argc = len(sys.argv)
 	if argc < 4 or argc > 5:
@@ -66,12 +75,6 @@ if __name__ == '__main__':
 
 	new_string = sys.argv[argc - 1]
 
-	pattern = ''
-	for char in old_string:
-		byte = str(hex(ord(char)))[2:]
-		if len(byte) == 1:
-			byte = '0' + byte
-		pattern += ' ' + byte
-	pattern = pattern[1:]
-	
+	pattern = get_pattern(old_string)
+
 	main(target_process, pattern, old_string, new_string, usb)
