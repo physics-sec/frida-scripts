@@ -5,7 +5,7 @@ int global = 112233;
 
 int main(int argc, char * argv[])
 {
-	int num = 12345;
+	double num = 12345;
 	printf("num at %p\n",&num);
 	printf("global at %p\n\n", &global);
 	printf("num = %d\n", num);

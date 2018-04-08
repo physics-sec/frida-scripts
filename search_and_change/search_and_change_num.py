@@ -86,7 +86,7 @@ if __name__ == '__main__':
 
 	usb = sys.argv[1] == '-U' or sys.argv[2] == '-U'
 	isLittleEndian = sys.argv[1] != 'big' and sys.argv[2] != 'big'
-	registerSize = 8
+	registerSize = 5
 
 	if sys.argv[argc - 3].isdigit():
 		target_process = int(sys.argv[argc - 3])
