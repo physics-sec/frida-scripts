@@ -24,11 +24,14 @@ def main(target_process, pattern, old_value, new_value, usb):
 		sys.exit('An error ocurred while attaching with the procces')
 	script = session.create_script("""
 		var ranges = Process.enumerateRangesSync({protection: 'rw-', coalesce: false});
-
+		
+		var fridaBase;
+		var fridaSize;
 		Process.enumerateModules({
 			onMatch: function(module){
 				if (module.name.includes("frida")){
-					var fridaBase = module.base;
+					fridaBase = module.base;
+					fridaSize = module.size;
 				}
 			}, 
 			onComplete: function(){}
@@ -36,20 +39,19 @@ def main(target_process, pattern, old_value, new_value, usb):
 
 		for (var i = 0, len = ranges.length; i < len; i++)
 		{
-			if (ranges[i].base == fridaBase){
-				console.log('[i] Encontre a frida:' + ranges[i].base);
-				continue;
-			}
 			Memory.scan(ranges[i].base, ranges[i].size, '%s', {
 				onMatch: function(address, size){
+					if(fridaBase < address && (fridaBase + fridaSize) > address){
+						console.log('wazaa');
+					}
 					var numEncontrado = Memory.readInt(address);
 					if (numEncontrado == %d){
-						console.log('[i] hit:' + address);
+						//console.log('[i] hit:' + address);
 						Memory.writeInt(address, %d);
 					}
-					else{
-						console.log('[i] miss:' + address);
-					}
+					//else{
+					//	console.log('[i] miss:' + address);
+					//}
 				},
 				onError: function(reason){
 					//console.log('[!] There was an error scanning memory:' + reason);
