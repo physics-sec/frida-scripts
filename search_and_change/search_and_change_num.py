@@ -42,7 +42,7 @@ def main(target_process, pattern, old_value, new_value, usb):
 			Memory.scan(ranges[i].base, ranges[i].size, '%s', {
 				onMatch: function(address, size){
 					if(fridaBase.compare(address) < 0 && fridaBase.add(fridaSize).compare(address) > 0){
-						console.log('wazaa');
+						return;
 					}
 					var numEncontrado = Memory.readInt(address);
 					if (numEncontrado == %d){
