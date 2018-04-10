@@ -99,6 +99,23 @@ def get_pattern(number, isLittleEndian):
 		pattern = hex_string[1:]
 	return pattern
 
+def get_byte_array(number, isLittleEndian, bits, signed):
+	pattern = get_pattern(number, isLittleEndian)
+	if isLittleEndian:
+		if len(pattern) < int(bits/8):
+			for x in range(int(bits/8) - len(pattern)):
+				pattern = pattern + '00'
+	else:
+		if len(pattern) < int(bits/8):
+			for x in range(int(bits/8) - len(pattern)):
+				pattern = '00' + pattern
+	byte_array = []
+	for byte in pattern:
+		byte_array.append(int('0x' + byte, 16))
+	if signed and number < 0:
+		pass
+	return byte_array
+
 if __name__ == '__main__':
 	argc = len(sys.argv)
 	if argc < 5 or argc > 7:
