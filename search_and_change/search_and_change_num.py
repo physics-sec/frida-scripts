@@ -101,14 +101,9 @@ def get_pattern(number, isLittleEndian):
 
 def get_byte_array(number, isLittleEndian, bits, signed):
 	pattern = get_pattern(number, isLittleEndian)
-	if isLittleEndian:
-		if len(pattern) < int(bits/8):
-			for x in range(int(bits/8) - len(pattern)):
-				pattern = pattern + '00'
-	else:
-		if len(pattern) < int(bits/8):
-			for x in range(int(bits/8) - len(pattern)):
-				pattern = '00' + pattern
+	if len(pattern) < int(bits/8):
+		for x in range(int(bits/8) - len(pattern)):
+			pattern = pattern + '00' if isLittleEndian else '00' + pattern
 	byte_array = []
 	for byte in pattern:
 		byte_array.append(int('0x' + byte, 16))
