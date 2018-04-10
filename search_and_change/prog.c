@@ -1,17 +1,16 @@
 #include <stdio.h>
 #include <unistd.h>
+#include <stdint.h>
 
 int global = 112233;
 
 int main(int argc, char * argv[])
 {
-	double num = 12345;
-	printf("num at %p\n",&num);
-	printf("global at %p\n\n", &global);
-	printf("num = %d\n", num);
+	int64_t num = 12345;
+	printf("num = %ld\n", num);
 	printf("global = %d\n\n", global);
 	sleep(5);
-	printf("num = %d\n", num);
+	printf("num = %ld\n", num);
 	printf("global = %d\n", global);
 	return 0;
 }

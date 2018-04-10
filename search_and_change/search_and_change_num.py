@@ -14,7 +14,7 @@ def on_message(message, data):
 	else:
 		print(message)
 
-def main(target_process, pattern, old_value, new_value, usb):
+def main(target_process, usb, pattern, old_value, new_value, signed, bits):
 	try:
 		if usb:
 			session = frida.get_usb_device().attach(target_process)
@@ -29,13 +29,45 @@ def main(target_process, pattern, old_value, new_value, usb):
 		{
 			Memory.scan(ranges[i].base, ranges[i].size, '%s', {
 				onMatch: function(address, size){
-					var numEncontrado = Memory.readInt(address);
-					if(numEncontrado == %d){
-						console.log('Encontrado:' + address);
-						Memory.writeInt(address, %d);
+
+					var old_value = %d;
+					var new_value = %d;
+					var signed = '%s' == 's';
+					var bits = %d; //64, 32 or 8
+
+					if (signed){
+						if (bits == 64){
+							if (Memory.readS64(address) == old_value){
+								Memory.writeS64(address, new_value);
+							}
+						}
+						else if (bits == 32){
+							if (Memory.readS32(address) == old_value){
+								Memory.writeS32(address, new_value);
+							}
+						}
+						else{
+							if (Memory.readS8(address) == old_value){
+								Memory.writeS8(address, new_value);
+							}
+						}
 					}
 					else{
-						console.log('No encontado:' + address);
+						if (bits == 64){
+							if (Memory.readU64(address) == old_value){
+								Memory.writeU64(address, new_value);
+							}
+						}
+						else if (bits == 32){
+							if (Memory.readU32(address) == old_value){
+								Memory.writeU32(address, new_value);
+							}
+						}
+						else{
+							if (Memory.readU8(address) == old_value){
+								Memory.writeU8(address, new_value);
+							}
+						}
 					}
 				},
 				onError: function(reason){
@@ -44,14 +76,14 @@ def main(target_process, pattern, old_value, new_value, usb):
 				onComplete: function(){}
 			});
 		}
-""" % (pattern, old_value, new_value))
+""" % (pattern, old_value, new_value, signed, bits))
 
 	script.on('message', on_message)
 	script.load()
 	time.sleep(3)
 	session.detach()
 
-def get_pattern(number, isLittleEndian, registerSize):
+def get_pattern(number, isLittleEndian):
 	hex_string = '{:02x}'.format(number)
 	if len(hex_string) % 2 == 1:
 		hex_string = '0' + hex_string
@@ -61,32 +93,33 @@ def get_pattern(number, isLittleEndian, registerSize):
 		for byte in bytes:
 			hex_string = byte + ' ' + hex_string # little indian
 		pattern = hex_string[:-1]
-		cantBytes = len(pattern.split(' '))
-		if cantBytes < registerSize:
-			for x in range(registerSize - cantBytes):
-				pattern = pattern + ' 00'
 	else:
 		for byte in bytes:
 			hex_string = hex_string + ' ' + byte # big indian
 		pattern = hex_string[1:]
-		cantBytes = len(pattern.split(' '))
-		if cantBytes < registerSize:
-			for x in range(registerSize - cantBytes):
-				pattern = '00 ' + pattern
 	return pattern
 
 if __name__ == '__main__':
 	argc = len(sys.argv)
-	if argc < 4 or argc > 6:
-		usage = 'Usage: {} (-U) (little|big) <process name or PID> <old value> <new value>'.format(__file__)
-		usage += '\nUse the little (default) or big parameter to specify the endiannes.'
-		usage += '\nThe -U option is for mobile instrumentation.'
-		usage += '\nOld value is the number to be replace with new value'
+	if argc < 5 or argc > 7:
+		usage = 'Usage: {} (-U) (little|big) <64|32|8> <-s|-u> <process name or PID> <old value> <new value>\n'.format(__file__)
+		usage += 'The -U option is for mobile instrumentation.\n'
+		usage += 'Use the little (default) or big parameter to specify the endiannes.\n'
+		usage += 'Specify the size of the variable in bits with 64, 32 or 8.\n'
+		usage += 'Specify if the variable is signed or unsigned with -s or -u.\n'
+		usage += 'Old value is the number to be replace with new value.'
 		sys.exit(usage)
 
 	usb = sys.argv[1] == '-U' or sys.argv[2] == '-U'
 	isLittleEndian = sys.argv[1] != 'big' and sys.argv[2] != 'big'
-	registerSize = 5
+
+	bits = int(sys.argv[argc - 5])
+	if bits != 64 and bits != 32 and bits != 8:
+		sys.exit('bad parameter')
+
+	signed = sys.argv[argc - 4][1]
+	if signed != 's' and signed != 'u':
+		sys.exit('bad parameter')
 
 	if sys.argv[argc - 3].isdigit():
 		target_process = int(sys.argv[argc - 3])
@@ -97,7 +130,10 @@ if __name__ == '__main__':
 
 	new_value = int(sys.argv[argc - 1])
 
-	pattern = get_pattern(old_value, isLittleEndian, registerSize)
+	pattern = get_pattern(old_value, isLittleEndian)
 
-	print(pattern)
-	main(target_process, pattern, old_value, new_value, usb)
+	main(target_process, usb, pattern, old_value, new_value, signed, bits)
+
+"""
+escribir un byte array para cuando el sistema es big endian?
+"""
