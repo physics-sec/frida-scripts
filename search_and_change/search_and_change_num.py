@@ -23,27 +23,12 @@ def main(target_process, pattern, old_value, new_value, usb):
 	except:
 		sys.exit('An error ocurred while attaching with the procces')
 	script = session.create_script("""
-		var ranges = Process.enumerateRangesSync({protection: 'rw-', coalesce: false});
+		var ranges = Process.enumerateRangesSync({protection: 'rw-', coalesce: true});
 		
-		var fridaBase;
-		var fridaSize;
-		Process.enumerateModules({
-			onMatch: function(module){
-				if (module.name.includes("frida")){
-					fridaBase = module.base;
-					fridaSize = module.size;
-				}
-			}, 
-			onComplete: function(){}
-		});
-
 		for (var i = 0, len = ranges.length; i < len; i++)
 		{
 			Memory.scan(ranges[i].base, ranges[i].size, '%s', {
 				onMatch: function(address, size){
-					if(fridaBase.compare(address) < 0 && fridaBase.add(fridaSize).compare(address) > 0){
-						return;
-					}
 					var numEncontrado = Memory.readInt(address);
 					if (numEncontrado == %d){
 						//console.log('[i] hit:' + address);
