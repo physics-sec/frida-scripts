@@ -101,12 +101,16 @@ def get_pattern(number, isLittleEndian):
 
 def get_byte_array(number, isLittleEndian, bits, signed):
 	pattern = get_pattern(number, isLittleEndian)
-	if len(pattern) < int(bits/8):
-		for x in range(int(bits/8) - len(pattern)):
-			pattern = pattern + '00' if isLittleEndian else '00' + pattern
+	lenPattern = len(pattern.split(' '))
+	if lenPattern < int(bits/8):
+		for x in range(0, int(bits/8) - lenPattern):
+			if isLittleEndian:
+				pattern = pattern + ' 00'
+			else:
+				pattern = '00 ' + pattern
 	byte_array = []
-	for byte in pattern:
-		byte_array.append(int('0x' + byte, 16))
+	for byte in pattern.split(' '):
+		byte_array.append(int(byte, 16))
 	if signed and number < 0:
 		pass
 	return byte_array
@@ -143,7 +147,7 @@ if __name__ == '__main__':
 	new_value = int(sys.argv[argc - 1])
 
 	pattern = get_pattern(old_value, isLittleEndian)
-
+	get_byte_array(new_value, isLittleEndian, bits, signed)
 	main(target_process, usb, pattern, old_value, new_value, signed, bits)
 
 """
