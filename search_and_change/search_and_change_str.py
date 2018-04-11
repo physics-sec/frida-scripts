@@ -28,8 +28,8 @@ def main(target_process, pattern, old_string, new_string, usb):
 		for (var i = 0, len = ranges.length; i < len; i++)
 		{
 			Memory.scan(ranges[i].base, ranges[i].size, '%s', {
-				onMatch: function(address, size_str){
-					var stringEncontrado = Memory.readUtf8String(address, size = size_str);
+				onMatch: function(address, size){
+					var stringEncontrado = Memory.readUtf8String(address);
 					if(stringEncontrado == '%s'){
 						Memory.writeUtf8String(address, '%s');
 					}
