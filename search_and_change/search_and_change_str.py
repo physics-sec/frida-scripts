@@ -23,6 +23,19 @@ def main(target_process, pattern, old_string, new_string, usb):
 	except:
 		sys.exit('An error ocurred while attaching with the procces')
 	script = session.create_script("""
+
+		function get_pattern(string) {
+			var pattern = "";
+			for (var char in string) {
+				var byte = char.charCodeAt(0).toString(16);
+				if (byte.length == 1) {
+					byte = "0" + byte;
+				}
+				pattern = pattern + " " + byte;
+			}
+			return pattern.substring(1);
+		}
+
 		var ranges = Process.enumerateRangesSync({protection: 'rw-', coalesce: true});
 
 		for (var i = 0, len = ranges.length; i < len; i++)
