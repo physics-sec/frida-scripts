@@ -134,9 +134,9 @@ if __name__ == '__main__':
 	for i in range(1, argc):
 		if sys.argv[i] == '-U':
 			usb = True
-		elif sys.argv[i] ==	'-e':
+		elif sys.argv[i] == '-e':
 			endianness = sys.argv[i + 1][0]
-		elif sys.argv[i] ==	'-b':
+		elif sys.argv[i] == '-b':
 			bits = int(sys.argv[i + 1])
 
 	if sys.argv[argc - 3].isdigit():
