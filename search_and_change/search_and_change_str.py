@@ -73,7 +73,6 @@ if __name__ == '__main__':
 	if argc < 4 or argc > 5:
 		usage = 'Usage: {} [-U] <process name or PID> <old string> <new string>'.format(__file__)
 		usage += '\nThe -U option is for mobile instrumentation.'
-		usage += '\nOld string is the utf-8 string to be replace with new string'
 		sys.exit(usage)
 
 	usb = sys.argv[2] == '-U'
