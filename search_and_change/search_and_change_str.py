@@ -48,19 +48,10 @@ def main(target_process, old_string, new_string, usb):
 
 		for (var i = 0, len = ranges.length; i < len; i++)
 		{
-<<<<<<< HEAD
-			Memory.scan(ranges[i].base, ranges[i].size, '%s', {
-				onMatch: function(address, size){
-					var stringEncontrado = Memory.readUtf8String(address);
-					if(stringEncontrado == '%s'){
-						Memory.writeUtf8String(address, '%s');
-					}
-=======
 			Memory.scan(ranges[i].base, ranges[i].size, pattern, {
 				onMatch: function(address, size_str) {
 					console.log("[i] found at " + address);
 					Memory.writeUtf8String(address, new_str);
->>>>>>> alineado-de-memoria
 				},
 				onError: function(reason) {
 					//console.log('[!] There was an error scanning memory:' + reason);
