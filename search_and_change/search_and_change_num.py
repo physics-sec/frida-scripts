@@ -86,7 +86,7 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits):
 		var new_value = %d;
 		var isLittleEndian = '%s' == "l";
 		var signed = '%s';
-		var bits = %d; //64, 32 or 8
+		var bits = %d; //64, 32, 16 or 8
 		var pattern = get_pattern(old_value, isLittleEndian, bits, signed);
 		var byte_array = get_byte_array(new_value, isLittleEndian, bits, signed);
 
@@ -102,7 +102,7 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits):
 				onError: function(reason) {
 					//console.log('[!] There was an error scanning memory:' + reason);
 				},
-				onComplete: function(){
+				onComplete: function() {
 					//
 				}
 			});

@@ -14,7 +14,7 @@ def on_message(message, data):
 	else:
 		print(message)
 
-def main(target_process, pattern, old_string, new_string, usb):
+def main(target_process, old_string, new_string, usb):
 	try:
 		if usb:
 			session = frida.get_usb_device().attach(target_process)
@@ -26,8 +26,8 @@ def main(target_process, pattern, old_string, new_string, usb):
 
 		function get_pattern(string) {
 			var pattern = "";
-			for (var char in string) {
-				var byte = char.charCodeAt(0).toString(16);
+			for (var i = 0; i < string.length; i++) {
+				var byte = string[i].charCodeAt(0).toString(16);
 				if (byte.length == 1) {
 					byte = "0" + byte;
 				}
@@ -36,38 +36,32 @@ def main(target_process, pattern, old_string, new_string, usb):
 			return pattern.substring(1);
 		}
 
+		var old_str = '%s';
+		var new_str = '%s';
+		var pattern = get_pattern(old_str);
+
 		var ranges = Process.enumerateRangesSync({protection: 'rw-', coalesce: true});
 
 		for (var i = 0, len = ranges.length; i < len; i++)
 		{
-			Memory.scan(ranges[i].base, ranges[i].size, '%s', {
-				onMatch: function(address, size_str){
-					var stringEncontrado = Memory.readUtf8String(address, size = size_str);
-					if(stringEncontrado == '%s'){
-						Memory.writeUtf8String(address, '%s');
-					}
+			Memory.scan(ranges[i].base, ranges[i].size, pattern, {
+				onMatch: function(address, size_str) {
+					Memory.writeUtf8String(address, new_str);
 				},
-				onError: function(reason){
+				onError: function(reason) {
 					//console.log('[!] There was an error scanning memory:' + reason);
 				},
-				onComplete: function(){}
+				onComplete: function() {
+					//
+				}
 			});
 		}
-""" % (pattern, old_string, new_string))
+""" % (old_string, new_string))
 
 	script.on('message', on_message)
 	script.load()
 	time.sleep(3)
 	session.detach()
-
-def get_pattern(string):
-	pattern = ''
-	for char in string:
-		byte = str(hex(ord(char)))[2:]
-		if len(byte) == 1:
-			byte = '0' + byte
-		pattern = pattern + ' ' + byte
-	return pattern[1:]
 
 if __name__ == '__main__':
 	argc = len(sys.argv)
@@ -88,6 +82,4 @@ if __name__ == '__main__':
 
 	new_string = sys.argv[argc - 1]
 
-	pattern = get_pattern(old_string)
-
-	main(target_process, pattern, old_string, new_string, usb)
+	main(target_process, old_string, new_string, usb)
