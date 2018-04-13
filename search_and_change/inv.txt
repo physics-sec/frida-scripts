@@ -1,0 +1,72 @@
+
+
+	radare2
+
+0x7ffc6782d344
+
+:> px 20 @ rax
+- offset -       0 1  2 3  4 5  6 7  8 9  A B  C D  E F  0123456789ABCDEF
+0x7ffc6782d344  3930 0000 0034 3493 0b33 39bd a006 4000  90...44..39...@.
+
+	python
+
+╰─$ sudo python3 search_and_change_num.py prog 12345 22222
+39 30 00 00 00
+Encontrado:0x7f01267f9dac
+Encontrado:0x7ffeb9a862f4
+
+
+no usa todo el registro!
+|           0x004005f4      c745f4393000.  mov dword [local_ch], 0x3039                                                                                                                                   
+hace un mov dword !
+word -> 2 bytes
+dual word 4 bytes
+usa solo medio registro
+
+si usara qword entonces si.
+entonces no conviene usar nullbytes?
+como sabe frida que tiene que levantar solo medio registro?
+porque lee un int?
+
+
+
+si escribo siempre 64 o 32 bits? unsigned o signed?
+deberia parametrizar
+
+
+
+
+double.
+
+:> px 20 @ rax 
+- offset -       0 1  2 3  4 5  6 7  8 9  A B  C D  E F  0123456789ABCDEF
+0x7fffee7e5b60  0000 0000 801c c840 0081 add4 0f47 d5a8  .......@.....G..
+0x7fffee7e5b70  c006 4000                                ..@.
+
+
+:> px 20 @ 0x7fffcc9315d0
+- offset -       0 1  2 3  4 5  6 7  8 9  A B  C D  E F  0123456789ABCDEF
+0x7fffcc9315d0  0000 0000 801c c840 0092 cd35 90e9 e86b  .......@...5...k
+0x7fffcc9315e0  c006 4000                                ..@.
+
+nose mijo otro dia segui investigando
+parametrizar numero de 32 y de 64 bits?
+
+Memory.writeS8(address, value)
+Memory.writeU8(address, value)
+Memory.writeS16(address, value)
+Memory.writeU16(address, value)
+Memory.writeS32(address, value)
+Memory.writeU32(address, value)
+Memory.writeShort(address, value)
+Memory.writeUShort(address, value)
+Memory.writeInt(address, value)
+Memory.writeUInt(address, value)
+Memory.writeFloat(address, value)
+Memory.writeDouble(address, value
+Memory.writeS64(address, value)
+Memory.writeU64(address, value)
+Memory.writeLong(address, value)
+Memory.writeULong(address, value)
+Memory.writeByteArray(address, bytes)
+
