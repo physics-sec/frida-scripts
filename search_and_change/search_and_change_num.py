@@ -90,9 +90,11 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits):
 		var new_pattern = get_pattern(new_value, isLittleEndian, bits, signed);
 		var byte_array = get_byte_array(new_value, isLittleEndian, bits, signed);
 
-		var ranges = Process.enumerateRangesSync({protection: 'rw-', coalesce: true});
 		console.log("[i] searching for " + pattern);
 		console.log("[i] replacing for " + new_pattern);
+
+		var ranges = Process.enumerateRangesSync({protection: 'rw-', coalesce: true});
+
 		for (var i = 0, len = ranges.length; i < len; i++)
 		{
 			Memory.scan(ranges[i].base, ranges[i].size, pattern, {

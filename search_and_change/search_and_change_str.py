@@ -39,6 +39,10 @@ def main(target_process, old_string, new_string, usb):
 		var old_str = '%s';
 		var new_str = '%s';
 		var pattern = get_pattern(old_str);
+		var new_pattern = get_pattern(new_str);
+
+		console.log("[i] searching for " + pattern);
+		console.log("[i] replacing for " + new_pattern);
 
 		var ranges = Process.enumerateRangesSync({protection: 'rw-', coalesce: true});
 
@@ -46,6 +50,7 @@ def main(target_process, old_string, new_string, usb):
 		{
 			Memory.scan(ranges[i].base, ranges[i].size, pattern, {
 				onMatch: function(address, size_str) {
+					console.log("[i] found at " + address);
 					Memory.writeUtf8String(address, new_str);
 				},
 				onError: function(reason) {
