@@ -14,7 +14,7 @@ def on_message(message, data):
 	else:
 		print(message)
 
-def main(target_process, pattern, old_value, new_value, usb):
+def main(target_process, usb, old_value, new_value, endianness, signed, bits):
 	try:
 		if usb:
 			session = frida.get_usb_device().attach(target_process)
@@ -23,62 +23,121 @@ def main(target_process, pattern, old_value, new_value, usb):
 	except:
 		sys.exit('An error ocurred while attaching with the procces')
 	script = session.create_script("""
+		function get_pattern(number, isLittleEndian, bits, signed) {
+			var fixFistBit = (number < 0 && signed == "s");
+			number = parseInt(number);
+
+			var hex_string = number.toString(16);
+			if (hex_string.length %% 2 == 1) {
+				hex_string = '0' + hex_string;
+			}
+			var pattern = "";
+			hex_string.match(/.{2}/g).forEach(function(byte) {
+				if (isLittleEndian) {
+					pattern = byte + " " + pattern;
+				}
+				else {
+					pattern = pattern + " " + byte;
+				}
+			});
+			if (isLittleEndian) {
+				pattern = pattern.substring(0, pattern.length - 1);
+			}
+			else {
+				pattern = pattern.substr(1);
+			}
+
+			var cantBytes = pattern.split(" ").length;
+			var bytesReg = Math.floor(bits/8);
+			for (i = 0; i < (bytesReg - cantBytes); i++) {
+				pattern = (isLittleEndian ? pattern + ' 00' : '00 ' + pattern);
+			}
+			var lenPattern = pattern.length;
+			if (fixFistBit) {
+				if (isLittleEndian) {
+					var prev = pattern.substring(lenPattern-1, lenPattern);
+					var nvo = parseInt(prev);
+					nvo |= 256;
+					nvo = nvo.toString();
+					pattern = pattern.substring(0, lenPattern-1) + nvo;
+				}
+				else {
+					var prev = pattern.substring(0, 2);
+					var nvo = parseInt(prev);
+					nvo |= 256;
+					nvo = nvo.toString();
+					pattern = nvo + pattern.substring(2);
+				}
+			}
+			return pattern;
+		}
+
+		function get_byte_array(number, isLittleEndian, bits, signed) {
+			var pattern = get_pattern(number, isLittleEndian, bits, signed);
+			var byte_array = [];
+			var bytes = pattern.split(" ");
+			for (var i = bytes.length - 1; i >= 0; i--) {
+				byte_array.push(parseInt("0x" + bytes[i]));
+			}
+			return byte_array.reverse();
+		}		
+		var old_value = %d;
+		var new_value = %d;
+		var isLittleEndian = '%s' == "l";
+		var signed = '%s';
+		var bits = %d;
+		var pattern = get_pattern(old_value, isLittleEndian, bits, signed);
+		var new_pattern = get_pattern(new_value, isLittleEndian, bits, signed);
+		var byte_array = get_byte_array(new_value, isLittleEndian, bits, signed);
+
+		console.log("[i] searching for " + pattern);
+		console.log("[i] replacing for " + new_pattern);
+
 		var ranges = Process.enumerateRangesSync({protection: 'rw-', coalesce: true});
 		
 		for (var i = 0, len = ranges.length; i < len; i++)
 		{
-			Memory.scan(ranges[i].base, ranges[i].size, '%s', {
-				onMatch: function(address, size){
-					var numEncontrado = Memory.readInt(address);
-					if (numEncontrado == %d){
-						//console.log('[i] hit:' + address);
-						Memory.writeInt(address, %d);
-					}
-					//else{
-					//	console.log('[i] miss:' + address);
-					//}
+			Memory.scan(ranges[i].base, ranges[i].size, pattern, {
+				onMatch: function(address, size) {
+					console.log("[i] found at " + address);
+					Memory.writeByteArray(address, byte_array);
 				},
-				onError: function(reason){
+				onError: function(reason) {
 					//console.log('[!] There was an error scanning memory:' + reason);
 				},
-				onComplete: function(){}
+				onComplete: function() {
+					//
+				}
 			});
 		}
-""" % (pattern, old_value, new_value))
+""" % (old_value, new_value, endianness, signed, bits))
 
 	script.on('message', on_message)
 	script.load()
 	time.sleep(3)
 	session.detach()
 
-
-def get_pattern(number, isLittleEndian):
-	hex_string = '{:02x}'.format(number)
-	if len(hex_string) % 2 == 1:
-		hex_string = '0' + hex_string
-	bytes = re.findall(r'.{2}', hex_string)
-	hex_string = ''
-	if isLittleEndian:
-		for byte in bytes:
-			hex_string = byte + ' ' + hex_string # little indian
-		pattern = hex_string[:-1]
-	else:
-		for byte in bytes:
-			hex_string = hex_string + ' ' + byte # big indian
-		pattern = hex_string[1:]
-	return pattern
-
 if __name__ == '__main__':
 	argc = len(sys.argv)
-	if argc < 4 or argc > 6:
-		usage = 'Usage: {} (-U) (little|big) <process name or PID> <old value> <new value>'.format(__file__)
-		usage += '\nUse the little (default) or big parameter to specify the endiannes.'
-		usage += '\nThe -U option is for mobile instrumentation.'
-		usage += '\nOld value is the number to be replace with new value'
+	if argc < 4 or argc > 7:
+		usage = 'Usage: {} [-U] [-e little|big] [-b 64|32|16|8] <process name or PID> <old value> <new value>\n'.format(__file__)
+		usage += 'The \'-U\' option is for mobile instrumentation.\n'
+		usage += 'The \'-e\' option is to specify the endianness. Little is the default.\n'
+		usage += 'The \'-b\' option is to specify the size of the variable in bits.\n'
+		# usage += 'Specify if the variable is signed or unsigned with -s or -u.\n'
 		sys.exit(usage)
 
-	usb = sys.argv[1] == '-U' or sys.argv[2] == '-U'
-	isLittleEndian = sys.argv[1] != 'big' and sys.argv[2] != 'big'
+	usb = False
+	endianness = 'l'
+	bits = 32
+	signed = 'u'
+	for i in range(1, argc):
+		if sys.argv[i] == '-U':
+			usb = True
+		elif sys.argv[i] ==	'-e':
+			endianness = sys.argv[i + 1][0]
+		elif sys.argv[i] ==	'-b':
+			bits = int(sys.argv[i + 1])
 
 	if sys.argv[argc - 3].isdigit():
 		target_process = int(sys.argv[argc - 3])
@@ -89,6 +148,13 @@ if __name__ == '__main__':
 
 	new_value = int(sys.argv[argc - 1])
 
-	pattern = get_pattern(old_value, isLittleEndian)
+	if old_value < 0 or new_value < 0:
+		sys.exit('Negative numbers aren\'t suported yet.')
 
-	main(target_process, pattern, old_value, new_value, usb)
+	if (new_value > (2 ** (bits - 1)) - 1 and signed == 's') or (new_value > (2 ** bits) - 1 and signed == 'u'):
+		sys.exit('new_value is too large')
+
+	if (old_value > (2 ** (bits - 1)) - 1 and signed == 's') or (old_value > (2 ** bits) - 1 and signed == 'u'):
+		sys.exit('old_value is too large')
+
+	main(target_process, usb, old_value, new_value, endianness, signed, bits)
