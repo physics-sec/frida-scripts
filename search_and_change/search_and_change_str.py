@@ -40,10 +40,10 @@ def main(target_process, old_string, new_string, usb, mode):
 			var pattern = get_pattern(string);
 			var byte_array = [];
 			var bytes = pattern.split(" ");
-			for (var i = bytes.length - 1; i >= 0; i--) {
+			for (var i = 0; i < bytes.length; i++) {
 				byte_array.push(parseInt("0x" + bytes[i]));
 			}
-			return byte_array.reverse();
+			return byte_array;
 		}
 
 		var old_str = '%s';
