@@ -30,8 +30,10 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits):
 		sys.exit('An error ocurred while attaching with the procces')
 	script = session.create_script("""
 		function get_pattern(number, isLittleEndian, bits, signed) {
-			var fixFistBit = (number < 0 && signed == "s");
-			number = parseInt(number);
+			var negative = (number < 0 && signed == "s");
+			if (number < 0) {
+				number *= -1;
+			}
 
 			var hex_string = number.toString(16);
 			if (hex_string.length %% 2 == 1) {
@@ -39,18 +41,13 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits):
 			}
 			var pattern = "";
 			hex_string.match(/.{2}/g).forEach(function(byte) {
-				if (isLittleEndian) {
-					pattern = byte + " " + pattern;
-				}
-				else {
-					pattern = pattern + " " + byte;
-				}
+				pattern = (isLittleEndian ? byte + " " + pattern : pattern + " " + byte);
 			});
 			if (isLittleEndian) {
 				pattern = pattern.substring(0, pattern.length - 1);
 			}
 			else {
-				pattern = pattern.substr(1);
+				pattern = pattern.substring(1, pattern.length);
 			}
 
 			var cantBytes = pattern.split(" ").length;
@@ -59,7 +56,7 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits):
 				pattern = (isLittleEndian ? pattern + ' 00' : '00 ' + pattern);
 			}
 			var lenPattern = pattern.length;
-			if (fixFistBit) {
+			if (negative) {
 				if (isLittleEndian) {
 					var prev = pattern.substring(lenPattern-1, lenPattern);
 					var nvo = parseInt(prev);
@@ -125,7 +122,7 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits):
 
 if __name__ == '__main__':
 	argc = len(sys.argv)
-	if argc < 4 or argc > 7:
+	if argc < 4 or argc > 9:
 		usage = 'Usage: {} [-U] [-e little|big] [-b 64|32|16|8] <process name or PID> <old value> <new value>\n'.format(__file__)
 		usage += 'The \'-U\' option is for mobile instrumentation.\n'
 		usage += 'The \'-e\' option is to specify the endianness. Little is the default.\n'
