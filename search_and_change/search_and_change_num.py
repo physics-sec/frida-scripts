@@ -6,6 +6,12 @@ import frida
 import time
 import re
 
+"""
+https://gist.github.com/shuffle2/9b9e9cc093060be975f9
+    Memory.protect(descriptor_check_addr, skip_descriptor_check.length, 'rwx');
+	Memory.writeByteArray(descriptor_check_addr, skip_descriptor_check);
+"""
+
 def on_message(message, data):
 	if message['type'] == 'error':
 		print('[!] ' + message['stack'])
