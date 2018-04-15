@@ -120,7 +120,7 @@ if __name__ == '__main__':
 		usage = 'Usage: {} [-U] [-e little|big] [-b 64|32|16|8] <process name or PID> <old value> <new value>\n'.format(__file__)
 		usage += 'The \'-U\' option is for mobile instrumentation.\n'
 		usage += 'The \'-e\' option is to specify the endianness. Little is the default.\n'
-		usage += 'The \'-b\' option is to specify the size of the variable in bits.\n'
+		usage += 'The \'-b\' option is to specify the size of the variable in bits. 32 is the default.\n'
 		# usage += 'Specify if the variable is signed or unsigned with -s or -u.\n'
 		sys.exit(usage)
 
