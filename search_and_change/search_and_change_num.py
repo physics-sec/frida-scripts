@@ -96,7 +96,7 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits):
 		{
 			Memory.scan(ranges[i].base, ranges[i].size, pattern, {
 				onMatch: function(address, size) {
-					console.log("[i] found at " + address);
+					console.log("[+] found at " + address);
 					Memory.writeByteArray(address, byte_array);
 				},
 				onError: function(reason) {
