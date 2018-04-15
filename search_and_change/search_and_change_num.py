@@ -154,10 +154,10 @@ if __name__ == '__main__':
 	if old_value < 0 or new_value < 0:
 		sys.exit('Negative numbers aren\'t suported yet.')
 
-	if (new_value > (2 ** (bits - 1)) - 1 and signed == 's') or (new_value > (2 ** bits) - 1 and signed == 'u'):
-		sys.exit('new_value is too large')
-
 	if (old_value > (2 ** (bits - 1)) - 1 and signed == 's') or (old_value > (2 ** bits) - 1 and signed == 'u'):
-		sys.exit('old_value is too large')
+		sys.exit(str(old_value) + ' is too large')
+
+	if (new_value > (2 ** (bits - 1)) - 1 and signed == 's') or (new_value > (2 ** bits) - 1 and signed == 'u'):
+		sys.exit(str(new_value) + ' is too large')
 
 	main(target_process, usb, old_value, new_value, endianness, signed, bits)
