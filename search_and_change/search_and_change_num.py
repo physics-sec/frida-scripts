@@ -6,12 +6,6 @@ import frida
 import time
 import re
 
-"""
-https://gist.github.com/shuffle2/9b9e9cc093060be975f9
-    Memory.protect(descriptor_check_addr, skip_descriptor_check.length, 'rwx');
-	Memory.writeByteArray(descriptor_check_addr, skip_descriptor_check);
-"""
-
 def on_message(message, data):
 	if message['type'] == 'error':
 		print('[!] ' + message['stack'])
@@ -134,7 +128,7 @@ if __name__ == '__main__':
 	endianness = 'l'
 	bits = 32
 	signed = 'u'
-	for i in range(1, argc):
+	for i in range(1, 3):
 		if sys.argv[i] == '-U':
 			usb = True
 		elif sys.argv[i] == '-e':
