@@ -128,7 +128,7 @@ if __name__ == '__main__':
 	endianness = 'l'
 	bits = 32
 	signed = 'u'
-	for i in range(1, 3):
+	for i in range(1, argc):
 		if sys.argv[i] == '-U':
 			usb = True
 		elif sys.argv[i] == '-e':
