@@ -95,7 +95,7 @@ if __name__ == '__main__':
 
 	usb = False
 	mode = 'array'
-	for i in range(1, 2):
+	for i in range(1, argc):
 		if sys.argv[i] == '-U':
 			usb = True
 		elif sys.argv[i] == '-n':
