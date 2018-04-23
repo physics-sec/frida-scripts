@@ -14,7 +14,7 @@ def on_message(message, data):
 	else:
 		print(message)
 
-def main(target_process, usb, old_value, new_value, endianness, signed, bits, alligned):
+def main(target_process, usb, old_value, new_value, endianness, signed, bits, alignment):
 	try:
 		if usb:
 			session = frida.get_usb_device().attach(target_process)
@@ -90,7 +90,8 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits, al
 		var isLittleEndian = '%s' == "l";
 		var signed = '%s';
 		var bits = %d;
-		var mustBeAlligned = '%s' == "y";
+		var alignment = %d;
+		var mustBeAlligned = alignment != 0;
 		var pattern = get_pattern(old_value, isLittleEndian, bits, signed);
 		var new_pattern = get_pattern(new_value, isLittleEndian, bits, signed);
 		var byte_array = get_byte_array(new_value, isLittleEndian, bits, signed);
@@ -104,7 +105,7 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits, al
 		{
 			Memory.scan(ranges[i].base, ranges[i].size, pattern, {
 				onMatch: function(address, size) {
-					if (!mustBeAlligned || (mustBeAlligned && isAlligned(address, bits))) {
+					if (!mustBeAlligned || (mustBeAlligned && isAlligned(address, alignment))) {
 						console.log("[+] hit at " + address);
 						Memory.writeByteArray(address, byte_array);
 					}
@@ -117,7 +118,7 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits, al
 				}
 			});
 		}
-""" % (old_value, new_value, endianness, signed, bits, alligned))
+""" % (old_value, new_value, endianness, signed, bits, alignment))
 
 	script.on('message', on_message)
 	script.load()
@@ -127,11 +128,11 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits, al
 if __name__ == '__main__':
 	argc = len(sys.argv)
 	if argc < 4 or argc > 10:
-		usage = 'Usage: {} [-U] [-e little|big] [-b 64|32|16|8] [-a] <process name or PID> <old value> <new value>\n'.format(__file__)
+		usage = 'Usage: {} [-U] [-e little|big] [-b 64|32|16|8] [-a 64|32] <process name or PID> <old value> <new value>\n'.format(__file__)
 		usage += 'The \'-U\' option is for mobile instrumentation.\n'
 		usage += 'The \'-e\' option is to specify the endianness. Little is the default.\n'
 		usage += 'The \'-b\' option is to specify the size of the variable in bits. 32 is the default.\n'
-		usage += 'The \'-a\' option is to specify that the variable must be alligned in memory (and not in between registers).\n'
+		usage += 'The \'-a\' option is to specify that the variable must be aligned in memory (and not in between registers).\n'
 		# usage += 'Specify if the variable is signed or unsigned with -s or -u.\n'
 		sys.exit(usage)
 
@@ -139,7 +140,7 @@ if __name__ == '__main__':
 	endianness = 'l'
 	bits = 32
 	signed = 'u'
-	alligned = 'n'
+	alignment = 0
 	for i in range(1, argc - 3):
 		if sys.argv[i] == '-U':
 			usb = True
@@ -148,7 +149,7 @@ if __name__ == '__main__':
 		elif sys.argv[i] == '-b':
 			bits = int(sys.argv[i + 1])
 		elif sys.argv[i] == '-a':
-			alligned = 'y'
+			alignment = int(sys.argv[i + 1])
 
 	if sys.argv[argc - 3].isdigit():
 		target_process = int(sys.argv[argc - 3])
@@ -168,4 +169,4 @@ if __name__ == '__main__':
 	if (new_value > (2 ** (bits - 1)) - 1 and signed == 's') or (new_value > (2 ** bits) - 1 and signed == 'u'):
 		sys.exit(str(new_value) + ' is too large')
 
-	main(target_process, usb, old_value, new_value, endianness, signed, bits, alligned)
+	main(target_process, usb, old_value, new_value, endianness, signed, bits, alignment)
