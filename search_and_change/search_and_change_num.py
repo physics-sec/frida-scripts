@@ -77,7 +77,14 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits):
 				byte_array.push(parseInt("0x" + bytes[i]));
 			}
 			return byte_array.reverse();
-		}		
+		}
+
+		function isAlligned(pointer, bits) {
+			bytesInPointer = parseInt(pointer)
+			bytesInRegister = bits / 8
+			return bytesInPointer % bytesInRegister === 0
+		}
+
 		var old_value = %d;
 		var new_value = %d;
 		var isLittleEndian = '%s' == "l";
@@ -96,7 +103,7 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits):
 		{
 			Memory.scan(ranges[i].base, ranges[i].size, pattern, {
 				onMatch: function(address, size) {
-					console.log("[+] found at " + address);
+					console.log("[+] hit at " + address);
 					Memory.writeByteArray(address, byte_array);
 				},
 				onError: function(reason) {
