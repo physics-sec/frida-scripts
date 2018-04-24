@@ -2,7 +2,10 @@
 # -*- coding: utf-8 -*-
 
 import sys
-import frida
+try:
+	import frida
+except ImportError:
+	sys.exit('install frida\nsudo pip3 install frida')
 
 def on_message(message, data):
 	if message['type'] == 'error':
