@@ -3,8 +3,6 @@
 
 import sys
 import frida
-import time
-import re
 
 def on_message(message, data):
 	if message['type'] == 'error':
@@ -122,7 +120,7 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits, al
 
 	script.on('message', on_message)
 	script.load()
-	time.sleep(3)
+	input('[i] Press <Enter> at any time to detach from instrumented program.\n\n')
 	session.detach()
 
 if __name__ == '__main__':

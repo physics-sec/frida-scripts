@@ -3,8 +3,6 @@
 
 import sys
 import frida
-import time
-import re
 
 def on_message(message, data):
 	if message['type'] == 'error':
@@ -82,7 +80,7 @@ def main(target_process, old_string, new_string, usb, mode):
 
 	script.on('message', on_message)
 	script.load()
-	time.sleep(3)
+	input('[i] Press <Enter> at any time to detach from instrumented program.\n\n')
 	session.detach()
 
 if __name__ == '__main__':
@@ -95,7 +93,7 @@ if __name__ == '__main__':
 
 	usb = False
 	mode = 'array'
-	for i in range(1, argc):
+	for i in range(1, argc - 3):
 		if sys.argv[i] == '-U':
 			usb = True
 		elif sys.argv[i] == '-n':
