@@ -74,10 +74,10 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits, al
 			var pattern = get_pattern(number, isLittleEndian, bits, signed);
 			var byte_array = [];
 			var bytes = pattern.split(" ");
-			for (var i = bytes.length - 1; i >= 0; i--) {
+			for (var i = 0; i < bytes.length; i++) {
 				byte_array.push(parseInt("0x" + bytes[i]));
 			}
-			return byte_array.reverse();
+			return byte_array;
 		}
 
 		function isAlligned(pointer, bits) {
