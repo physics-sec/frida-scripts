@@ -62,7 +62,7 @@ def main(target_process, old_string, new_string, usb, mode):
 		{
 			Memory.scan(ranges[i].base, ranges[i].size, pattern, {
 				onMatch: function(address, size_str) {
-					console.log("[+] found at " + address);
+					console.log("[+] hit at " + address);
 					if (mode == "string") {
 						Memory.writeUtf8String(address, new_str);
 					}
