@@ -138,7 +138,7 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits, al
 
 if __name__ == '__main__':
 	argc = len(sys.argv)
-	if argc < 4 or argc > 11:
+	if argc < 4 or argc > 12:
 		usage = 'Usage: {} [-U] [-e little|big] [-b 64|32|16|8] [-a 64|32] [-t] <process name or PID> <old value> <new value>\n'.format(__file__)
 		usage += 'The \'-U\' option is for mobile instrumentation.\n'
 		usage += 'The \'-e\' option is to specify the endianness. Little is the default.\n'
