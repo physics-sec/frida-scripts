@@ -15,7 +15,7 @@ def on_message(message, data):
 	else:
 		print(message)
 
-def main(target_process, usb, old_value, new_value, endianness, signed, bits, alignment):
+def main(target_process, usb, old_value, new_value, endianness, signed, bits, alignment, testing):
 	try:
 		if usb:
 			session = frida.get_usb_device().attach(target_process)
@@ -92,23 +92,33 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits, al
 		var signed = '%s';
 		var bits = %d;
 		var alignment = %d;
+		var testing = '%s' == "y";
 		var mustBeAlligned = alignment != 0;
 		var pattern = get_pattern(old_value, isLittleEndian, bits, signed);
 		var new_pattern = get_pattern(new_value, isLittleEndian, bits, signed);
 		var byte_array = get_byte_array(new_value, isLittleEndian, bits, signed);
 
 		console.log("[i] searching for " + pattern);
-		console.log("[i] replacing for " + new_pattern);
-
+		if (testing) {
+			console.log("[i] nothing will be written");
+		}
+		else {
+			console.log("[i] replacing for " + new_pattern);
+		}
+		
 		var ranges = Process.enumerateRangesSync({protection: 'rw-', coalesce: true});
 		
-		for (var i = 0, len = ranges.length; i < len; i++)
-		{
+		for (var i = 0, len = ranges.length; i < len; i++) {
 			Memory.scan(ranges[i].base, ranges[i].size, pattern, {
 				onMatch: function(address, size) {
 					if (!mustBeAlligned || (mustBeAlligned && isAlligned(address, alignment))) {
-						console.log("[+] hit at " + address);
-						Memory.writeByteArray(address, byte_array);
+						if (testing) {
+							console.log("[+] found at " + address);
+						}
+						else {
+							console.log("[+] hit at " + address);
+							Memory.writeByteArray(address, byte_array);
+						}
 					}
 				},
 				onError: function(reason) {
@@ -119,7 +129,7 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits, al
 				}
 			});
 		}
-""" % (old_value, new_value, endianness, signed, bits, alignment))
+""" % (old_value, new_value, endianness, signed, bits, alignment, testing))
 
 	script.on('message', on_message)
 	script.load()
@@ -129,11 +139,12 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits, al
 if __name__ == '__main__':
 	argc = len(sys.argv)
 	if argc < 4 or argc > 11:
-		usage = 'Usage: {} [-U] [-e little|big] [-b 64|32|16|8] [-a 64|32] <process name or PID> <old value> <new value>\n'.format(__file__)
+		usage = 'Usage: {} [-U] [-e little|big] [-b 64|32|16|8] [-a 64|32] [-t] <process name or PID> <old value> <new value>\n'.format(__file__)
 		usage += 'The \'-U\' option is for mobile instrumentation.\n'
 		usage += 'The \'-e\' option is to specify the endianness. Little is the default.\n'
 		usage += 'The \'-b\' option is to specify the size of the variable in bits. 32 is the default.\n'
 		usage += 'The \'-a\' option is to specify that the variable must be aligned in memory (and not in between registers). This is disabled by default.\n'
+		usage += 'The \'-t\' option is for testing. Matches will be shown but nothing will be written.\n'
 		# usage += 'Specify if the variable is signed or unsigned with -s or -u.\n'
 		sys.exit(usage)
 
@@ -142,6 +153,7 @@ if __name__ == '__main__':
 	bits = 32
 	signed = 'u'
 	alignment = 0
+	testing = 'n'
 	for i in range(1, argc - 3):
 		if sys.argv[i] == '-U':
 			usb = True
@@ -151,6 +163,8 @@ if __name__ == '__main__':
 			bits = int(sys.argv[i + 1])
 		elif sys.argv[i] == '-a':
 			alignment = int(sys.argv[i + 1])
+		elif sys.argv[i] == '-t':
+			testing = 'y'
 
 	if sys.argv[argc - 3].isdigit():
 		target_process = int(sys.argv[argc - 3])
@@ -170,4 +184,4 @@ if __name__ == '__main__':
 	if (new_value > (2 ** (bits - 1)) - 1 and signed == 's') or (new_value > (2 ** bits) - 1 and signed == 'u'):
 		sys.exit(str(new_value) + ' is too large')
 
-	main(target_process, usb, old_value, new_value, endianness, signed, bits, alignment)
+	main(target_process, usb, old_value, new_value, endianness, signed, bits, alignment, testing)
