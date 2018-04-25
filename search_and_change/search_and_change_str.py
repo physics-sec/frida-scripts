@@ -15,7 +15,7 @@ def on_message(message, data):
 	else:
 		print(message)
 
-def main(target_process, old_string, new_string, usb, mode):
+def main(target_process, old_string, new_string, usb, mode, testing):
 	try:
 		if usb:
 			session = frida.get_usb_device().attach(target_process)
@@ -50,25 +50,35 @@ def main(target_process, old_string, new_string, usb, mode):
 		var old_str = '%s';
 		var new_str = '%s';
 		var mode = '%s';
+		var testing = '%s' == "y";
 		var pattern = get_pattern(old_str);
 		var new_pattern = get_pattern(new_str);
 		var byte_array = get_byte_array(new_str);
 
 		console.log("[i] searching for " + pattern);
-		console.log("[i] replacing for " + new_pattern);
+		if (testing) {
+			console.log("[i] nothing will be written");
+		}
+		else {
+			console.log("[i] replacing for " + new_pattern);
+		}
 
 		var ranges = Process.enumerateRangesSync({protection: 'rw-', coalesce: true});
 
-		for (var i = 0, len = ranges.length; i < len; i++)
-		{
+		for (var i = 0, len = ranges.length; i < len; i++) {
 			Memory.scan(ranges[i].base, ranges[i].size, pattern, {
 				onMatch: function(address, size_str) {
-					console.log("[+] hit at " + address);
-					if (mode == "string") {
-						Memory.writeUtf8String(address, new_str);
+					if (testing) {
+						console.log("[+] found at " + address);
 					}
 					else {
-						Memory.writeByteArray(address, byte_array);
+						console.log("[+] hit at " + address);
+						if (mode == "string") {
+							Memory.writeUtf8String(address, new_str);
+						}
+						else {
+							Memory.writeByteArray(address, byte_array);
+						}						
 					}
 				},
 				onError: function(reason) {
@@ -79,7 +89,7 @@ def main(target_process, old_string, new_string, usb, mode):
 				}
 			});
 		}
-""" % (old_string, new_string, mode))
+""" % (old_string, new_string, mode, testing))
 
 	script.on('message', on_message)
 	script.load()
@@ -92,15 +102,19 @@ if __name__ == '__main__':
 		usage = 'Usage: {} [-U] [-n] <process name or PID> <old string> <new string>'.format(__file__)
 		usage += '\nThe -U option is for mobile instrumentation.'
 		usage += '\nThe -n option is to write a null-terminated string.'
+		usage += 'The \'-t\' option is for testing. Matches will be shown but nothing will be written.\n'
 		sys.exit(usage)
 
 	usb = False
 	mode = 'array'
+	testing = 'n'
 	for i in range(1, argc - 3):
 		if sys.argv[i] == '-U':
 			usb = True
 		elif sys.argv[i] == '-n':
 			mode = 'string'
+		elif sys.argv[i] == '-t':
+			testing = 'y'
 
 	if sys.argv[argc - 3].isdigit():
 		target_process = int(sys.argv[argc - 3])
@@ -111,4 +125,4 @@ if __name__ == '__main__':
 
 	new_string = sys.argv[argc - 1]
 
-	main(target_process, old_string, new_string, usb, mode)
+	main(target_process, old_string, new_string, usb, mode, testing)
