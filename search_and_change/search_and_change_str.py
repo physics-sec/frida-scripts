@@ -99,7 +99,7 @@ def main(target_process, old_string, new_string, usb, mode, testing):
 if __name__ == '__main__':
 	argc = len(sys.argv)
 	if argc < 4 or argc > 7:
-		usage = 'Usage: {} [-U] [-n] <process name or PID> <old string> <new string>'.format(__file__)
+		usage = 'Usage: {} [-U] [-n] [-t] <process name or PID> <old string> <new string>'.format(__file__)
 		usage += '\nThe -U option is for mobile instrumentation.'
 		usage += '\nThe -n option is to write a null-terminated string.'
 		usage += 'The \'-t\' option is for testing. Matches will be shown but nothing will be written.\n'
