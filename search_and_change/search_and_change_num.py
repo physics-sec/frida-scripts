@@ -158,11 +158,20 @@ if __name__ == '__main__':
 		if sys.argv[i] == '-U':
 			usb = True
 		elif sys.argv[i] == '-e':
-			endianness = sys.argv[i + 1][0]
+			endianness = sys.argv[i + 1]
+			if endianness not in ['big', 'little']:
+				sys.exit('Bad \'-e\' parameter. Specify the endianness (big or little).')
+			endianness = endianness[0]
 		elif sys.argv[i] == '-b':
-			bits = int(sys.argv[i + 1])
+			size = sys.argv[i + 1]
+			if size not in ['64', '32', '16', '8']:
+				sys.exit('Bad \'-b\' parameter. Specify the size of the variable in bits (64, 32, 16 or 8).')
+			bits = int(size)
 		elif sys.argv[i] == '-a':
-			alignment = int(sys.argv[i + 1])
+			arch = sys.argv[i + 1]
+			if arch not in ['64', '32']:
+				sys.exit('Bad \'-a\' parameter. Specify the architecture (32 or 64).')
+			alignment = int(arch)
 		elif sys.argv[i] == '-t':
 			testing = 'y'
 
@@ -170,6 +179,11 @@ if __name__ == '__main__':
 		target_process = int(sys.argv[argc - 3])
 	else:
 		target_process = sys.argv[argc - 3]
+
+	if sys.argv[argc - 2].isdigit() is False:
+		sys.exit('<old value> must be a number.')
+	if sys.argv[argc - 1].isdigit() is False:
+		sys.exit('<new value> must be a number.')
 
 	old_value = int(sys.argv[argc - 2])
 
