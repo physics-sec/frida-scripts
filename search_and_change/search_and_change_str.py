@@ -62,6 +62,7 @@ def main(target_process, old_string, new_string, usb, mode, testing):
 		else {
 			console.log("[i] replacing for " + new_pattern);
 		}
+		console.log("")
 
 		var ranges = Process.enumerateRangesSync({protection: 'rw-', coalesce: true});
 
@@ -92,8 +93,9 @@ def main(target_process, old_string, new_string, usb, mode, testing):
 """ % (old_string, new_string, mode, testing))
 
 	script.on('message', on_message)
+	print('[i] Press <Enter> at any time to detach from instrumented program.\n')
 	script.load()
-	input('[i] Press <Enter> at any time to detach from instrumented program.\n\n')
+	input()
 	session.detach()
 
 if __name__ == '__main__':
