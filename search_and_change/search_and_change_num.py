@@ -180,9 +180,9 @@ if __name__ == '__main__':
 	else:
 		target_process = sys.argv[argc - 3]
 
-	if sys.argv[argc - 2].isdigit() is False:
+	if sys.argv[argc - 2].replace('-', '').isdigit() is False:
 		sys.exit('<old value> must be a number.')
-	if sys.argv[argc - 1].isdigit() is False:
+	if sys.argv[argc - 1].replace('-', '').isdigit() is False:
 		sys.exit('<new value> must be a number.')
 
 	old_value = int(sys.argv[argc - 2])
