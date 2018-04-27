@@ -105,6 +105,7 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits, al
 		else {
 			console.log("[i] replacing for " + new_pattern);
 		}
+		console.log("")
 		
 		var ranges = Process.enumerateRangesSync({protection: 'rw-', coalesce: true});
 		
@@ -132,8 +133,9 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits, al
 """ % (old_value, new_value, endianness, signed, bits, alignment, testing))
 
 	script.on('message', on_message)
+	print('\n[i] Press <Enter> at any time to detach from instrumented program.\n')
 	script.load()
-	input('[i] Press <Enter> at any time to detach from instrumented program.\n\n')
+	input()
 	session.detach()
 
 if __name__ == '__main__':
