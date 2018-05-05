@@ -109,27 +109,28 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits, al
 		
 		var ranges = Process.enumerateRangesSync({protection: 'rw-', coalesce: true});
 		
+		var counter = 0;
+		var scaned = 0;
 		for (var i = 0, len = ranges.length; i < len; i++) {
 			Memory.scan(ranges[i].base, ranges[i].size, pattern, {
 				onMatch: function(address, size) {
 					if (!mustBeAlligned || (mustBeAlligned && isAlligned(address, alignment))) {
-						if (testing) {
-							console.log("[+] found at " + address);
-						}
-						else {
-							console.log("[+] hit at " + address);
-							Memory.writeByteArray(address, byte_array);
-						}
+						counter ++;
+						console.log("(" + counter.toString() + ") " + address);
 					}
 				},
 				onError: function(reason) {
 					//console.log('[!] There was an error scanning memory:' + reason);
 				},
 				onComplete: function() {
-					//
+					scaned ++;
 				}
 			});
 		}
+		while (scaned < ranges.length) {
+			//wait
+		}
+		//what now?
 """ % (old_value, new_value, endianness, signed, bits, alignment, testing))
 
 	script.on('message', on_message)
