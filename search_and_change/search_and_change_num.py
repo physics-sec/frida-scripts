@@ -2,10 +2,33 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import time
 try:
 	import frida
 except ImportError:
 	sys.exit('install frida\nsudo pip3 install frida')
+
+def read(msg): # lee input del usuario
+	def _invalido():
+		sys.stdout.write('\033[F\r') # Cursor up one line
+		blank = ' ' * len(str(leido) + msg)
+		sys.stdout.write('\r' + blank + '\r')
+		return read(msg)
+
+	try:
+		leido = input(msg)
+	except EOFError:
+		return _invalido()
+
+	if leido != '' and leido.isdigit() is False:
+		return _invalido()
+
+	if leido.isdigit():
+		try:
+			leido = eval(leido)
+		except SyntaxError:
+			return _invalido()
+	return leido
 
 def on_message(message, data):
 	if message['type'] == 'error':
@@ -15,7 +38,7 @@ def on_message(message, data):
 	else:
 		print(message)
 
-def main(target_process, usb, old_value, new_value, endianness, signed, bits, alignment, testing):
+def main(target_process, usb, old_value, new_value, endianness, signed, bits, alignment):
 	try:
 		if usb:
 			session = frida.get_usb_device().attach(target_process)
@@ -92,7 +115,6 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits, al
 		var signed = '%s';
 		var bits = %d;
 		var alignment = %d;
-		var testing = '%s' == "y";
 		var mustBeAlligned = alignment != 0;
 		var pattern = get_pattern(old_value, isLittleEndian, bits, signed);
 		var new_pattern = get_pattern(new_value, isLittleEndian, bits, signed);
@@ -110,12 +132,12 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits, al
 		var ranges = Process.enumerateRangesSync({protection: 'rw-', coalesce: true});
 		
 		var counter = 0;
-		var scaned = 0;
+		var addresses = {};
 		for (var i = 0, len = ranges.length; i < len; i++) {
 			Memory.scan(ranges[i].base, ranges[i].size, pattern, {
 				onMatch: function(address, size) {
 					if (!mustBeAlligned || (mustBeAlligned && isAlligned(address, alignment))) {
-						counter ++;
+						addresses[counter ++] = address;
 						console.log("(" + counter.toString() + ") " + address);
 					}
 				},
@@ -123,20 +145,28 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits, al
 					//console.log('[!] There was an error scanning memory:' + reason);
 				},
 				onComplete: function() {
-					scaned ++;
+					//
 				}
 			});
 		}
-		while (scaned < ranges.length) {
-			//wait
+		while (1) {
+			var index = recv('input', function(value) {
+				args[0] = value.payload;
+			});
+			index.wait();
+			Memory.writeByteArray(addresses[index - 1], byte_array);
 		}
-		//what now?
-""" % (old_value, new_value, endianness, signed, bits, alignment, testing))
+
+""" % (old_value, new_value, endianness, signed, bits, alignment))
 
 	script.on('message', on_message)
 	print('\n[i] Press <Enter> at any time to detach from instrumented program.\n')
 	script.load()
-	input()
+	time.sleep(3)
+	index = read('Enter index:')
+	while index != '':
+		script.post({'type': 'input', 'payload': int(index)})
+		index = read('Enter index:')
 	session.detach()
 
 if __name__ == '__main__':
@@ -147,7 +177,6 @@ if __name__ == '__main__':
 		usage += 'The \'-e\' option is to specify the endianness. Little is the default.\n'
 		usage += 'The \'-b\' option is to specify the size of the variable in bits. 32 is the default.\n'
 		usage += 'The \'-a\' option is to specify that the variable must be aligned in memory (and not in between registers). This is disabled by default.\n'
-		usage += 'The \'-t\' option is for testing. Matches will be shown but nothing will be written.\n'
 		# usage += 'Specify if the variable is signed or unsigned with -s or -u.\n'
 		sys.exit(usage)
 
@@ -156,7 +185,6 @@ if __name__ == '__main__':
 	bits = 32
 	signed = 'u'
 	alignment = 0
-	testing = 'n'
 	for i in range(1, argc - 3):
 		if sys.argv[i] == '-U':
 			usb = True
@@ -175,8 +203,6 @@ if __name__ == '__main__':
 			if arch not in ['64', '32']:
 				sys.exit('Bad \'-a\' parameter. Specify the architecture (32 or 64).')
 			alignment = int(arch)
-		elif sys.argv[i] == '-t':
-			testing = 'y'
 
 	if sys.argv[argc - 3].isdigit():
 		target_process = int(sys.argv[argc - 3])
@@ -201,4 +227,4 @@ if __name__ == '__main__':
 	if (new_value > (2 ** (bits - 1)) - 1 and signed == 's') or (new_value > (2 ** bits) - 1 and signed == 'u'):
 		sys.exit(str(new_value) + ' is too large')
 
-	main(target_process, usb, old_value, new_value, endianness, signed, bits, alignment, testing)
+	main(target_process, usb, old_value, new_value, endianness, signed, bits, alignment)
