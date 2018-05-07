@@ -145,11 +145,12 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits, al
 				}
 			});
 		}
+		var index;
 		while (1) {
-			var index = recv('input', function(value) {
-				args[0] = value.payload;
+			var op = recv('input', function(value) {
+				index = value.payload;
 			});
-			index.wait();
+			op.wait();
 			Memory.writeByteArray(addresses[index - 1], byte_array);
 		}
 
@@ -159,10 +160,11 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits, al
 	print('\n[i] Press <Enter> at any time to detach from instrumented program.\n')
 	script.load()
 	time.sleep(3)
-	index = read('Enter index:')
-	while index != '':
-		script.post({'type': 'input', 'payload': int(index)})
-		index = read('Enter index:')
+	script.post({'type': 'input', 'payload': 1})
+	#index = read('Enter index:')
+	#while index != '':
+	#	script.post({'type': 'input', 'payload': int(index)})
+	#	index = read('Enter index:')
 	session.detach()
 
 if __name__ == '__main__':
