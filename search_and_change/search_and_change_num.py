@@ -139,9 +139,15 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits, al
 				var address = matches[j].address;
 				if (!mustBeAlligned || (mustBeAlligned && isAlligned(address, alignment))) {
 					addresses[counter ++] = address;
-					console.log("(" + counter + ") " + address);
 				}
 			}
+		}
+
+		var lenMax = counter.toString().length
+		for (var i = 0; i < counter; i++) {
+			var index = (i + 1).toString();
+			var padding = " ".repeat(lenMax - index.length);
+			console.log("(" + padding + index + ") " + addresses[i]);
 		}
 
 		send(counter);
