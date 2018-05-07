@@ -128,7 +128,6 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits, al
 		var counter = 0;
 		var addresses = {};
 		for (var i = 0, len = ranges.length; i < len; i++) {
-			console.log("paso")
 			var matches = Memory.scanSync(ranges[i].base, ranges[i].size, pattern);
 			for (var i = 0; i < matches.length; i++) {
 				var address = matches[i].address;
