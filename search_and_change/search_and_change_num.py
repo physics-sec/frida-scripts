@@ -10,7 +10,7 @@ except ImportError:
 
 matches = None
 
-def read(msg): # lee input del usuario
+def read(msg): # read input from user
 	def _invalido():
 		sys.stdout.write('\033[F\r') # Cursor up one line
 		blank = ' ' * len(str(leido) + msg)
@@ -32,6 +32,7 @@ def read(msg): # lee input del usuario
 			return _invalido()
 		if leido < 1 or leido > matches:
 			return _invalido()
+
 	return leido
 
 def on_message(message, data):
