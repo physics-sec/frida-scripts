@@ -134,12 +134,6 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits, al
 						addresses[counter ++] = address;
 						console.log("(" + counter.toString() + ") " + address);
 					}
-				},
-				onError: function(reason) {
-					//console.log('[!] There was an error scanning memory:' + reason);
-				},
-				onComplete: function() {
-					//
 				}
 			});
 		}
