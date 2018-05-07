@@ -121,14 +121,8 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits, al
 		var byte_array = get_byte_array(new_value, isLittleEndian, bits, signed);
 
 		console.log("[i] searching for " + pattern);
-		if (testing) {
-			console.log("[i] nothing will be written");
-		}
-		else {
-			console.log("[i] replacing for " + new_pattern);
-		}
-		console.log("")
-		
+		console.log("[i] indicate which address you want to overwrite with " + new_pattern + "\n");
+
 		var ranges = Process.enumerateRangesSync({protection: 'rw-', coalesce: true});
 		
 		var counter = 0;
