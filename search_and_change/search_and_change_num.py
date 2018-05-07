@@ -155,9 +155,10 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits, al
 	time.sleep(3)
 	print('\nIndicate which address you want to overwrite. Press <Enter> to detach.')
 	index = read('index of address:')
-	script.post({'type': 'input', 'payload': int(index)})
-	print('address overwritten!')
-	time.sleep(1)
+	if index != '':
+		script.post({'type': 'input', 'payload': int(index)})
+		print('address overwritten!')
+		time.sleep(1)
 	session.detach()
 
 if __name__ == '__main__':
