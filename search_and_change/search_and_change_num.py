@@ -117,13 +117,11 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits, al
 		var alignment = %d;
 		var mustBeAlligned = alignment != 0;
 		var pattern = get_pattern(old_value, isLittleEndian, bits, signed);
-		var new_pattern = get_pattern(new_value, isLittleEndian, bits, signed);
 		var byte_array = get_byte_array(new_value, isLittleEndian, bits, signed);
 
 		console.log("[i] searching for " + pattern);
-		console.log("[i] indicate which address you want to overwrite with " + new_pattern);
 		console.log("")
-		console.log("List matches:")
+		console.log("List of matches:")
 
 		var ranges = Process.enumerateRangesSync({protection: 'rw-', coalesce: true});
 		
@@ -145,25 +143,21 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits, al
 				}
 			});
 		}
-		var index;
-		while (1) {
-			var op = recv('input', function(value) {
-				index = value.payload;
-			});
-			op.wait();
-			Memory.writeByteArray(addresses[index - 1], byte_array);
-		}
+
+		recv('input', function(value) {
+			Memory.writeByteArray(addresses[value.payload - 1], byte_array);
+		});
 
 """ % (old_value, new_value, endianness, signed, bits, alignment))
 
 	script.on('message', on_message)
-	print('\n[i] Press <Enter> at any time to detach from instrumented program.\n')
 	script.load()
 	time.sleep(3)
-	index = read('Enter index:')
-	while index != '':
-		script.post({'type': 'input', 'payload': int(index)})
-		index = read('Enter index:')
+	print('\nIndicate which address you want to overwrite')
+	index = read('index of address:')
+	script.post({'type': 'input', 'payload': int(index)})
+	print('address overwritten!')
+	time.sleep(1)
 	session.detach()
 
 if __name__ == '__main__':
