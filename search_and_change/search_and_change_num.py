@@ -147,7 +147,7 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits, al
 		for (var i = 0; i < counter; i++) {
 			var index = (i + 1).toString();
 			var padding = " ".repeat(lenMax - index.length);
-			console.log("(" + padding + index + ") " + addresses[i]);
+			console.log("(" + index + ") " + padding + addresses[i]);
 		}
 
 		send(counter);
