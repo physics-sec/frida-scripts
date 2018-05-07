@@ -153,7 +153,7 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits, al
 	script.on('message', on_message)
 	script.load()
 	time.sleep(3)
-	print('\nIndicate which address you want to overwrite')
+	print('\nIndicate which address you want to overwrite. Press <Enter> to detach.')
 	index = read('index of address:')
 	script.post({'type': 'input', 'payload': int(index)})
 	print('address overwritten!')
