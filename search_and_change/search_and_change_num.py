@@ -121,7 +121,9 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits, al
 		var byte_array = get_byte_array(new_value, isLittleEndian, bits, signed);
 
 		console.log("[i] searching for " + pattern);
-		console.log("[i] indicate which address you want to overwrite with " + new_pattern + "\n");
+		console.log("[i] indicate which address you want to overwrite with " + new_pattern);
+		console.log("")
+		console.log("List matches:")
 
 		var ranges = Process.enumerateRangesSync({protection: 'rw-', coalesce: true});
 		
