@@ -2,11 +2,12 @@
 # -*- coding: utf-8 -*-
 
 import sys
-import time
 try:
 	import frida
 except ImportError:
 	sys.exit('install frida\nsudo pip3 install frida')
+
+matches = None
 
 def read(msg): # lee input del usuario
 	def _invalido():
@@ -28,13 +29,16 @@ def read(msg): # lee input del usuario
 			leido = eval(leido)
 		except SyntaxError:
 			return _invalido()
+		if leido < 1 or leido > matches:
+			return _invalido()
 	return leido
 
 def on_message(message, data):
+	global matches
 	if message['type'] == 'error':
 		print('[!] ' + message['stack'])
 	elif message['type'] == 'send':
-		print('[i] ' + message['payload'])
+		matches =  message['payload']
 	else:
 		print(message)
 
@@ -138,6 +142,8 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits, al
 			}
 		}
 
+		send(counter);
+
 		recv('input', function(value) {
 			Memory.writeByteArray(addresses[value.payload - 1], byte_array);
 		});
@@ -146,13 +152,17 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits, al
 
 	script.on('message', on_message)
 	script.load()
-	time.sleep(3)
-	print('\nIndicate which address you want to overwrite. Press <Enter> to detach.')
-	index = read('index of address:')
-	if index != '':
-		script.post({'type': 'input', 'payload': int(index)})
-		print('address overwritten!')
-		time.sleep(1)
+	while matches is None:
+		pass
+	if matches == 0:
+		print('\nNo matches found')
+	else:
+		print('\nIndicate which address you want to overwrite. Press <Enter> to detach.')
+		index = read('index of address:')
+		if index != '':
+			script.post({'type': 'input', 'payload': int(index)})
+			print('address overwritten!')
+			time.sleep(1)
 	session.detach()
 
 if __name__ == '__main__':
