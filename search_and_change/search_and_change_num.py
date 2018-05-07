@@ -160,17 +160,16 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits, al
 	print('\n[i] Press <Enter> at any time to detach from instrumented program.\n')
 	script.load()
 	time.sleep(3)
-	script.post({'type': 'input', 'payload': 1})
-	#index = read('Enter index:')
-	#while index != '':
-	#	script.post({'type': 'input', 'payload': int(index)})
-	#	index = read('Enter index:')
+	index = read('Enter index:')
+	while index != '':
+		script.post({'type': 'input', 'payload': int(index)})
+		index = read('Enter index:')
 	session.detach()
 
 if __name__ == '__main__':
 	argc = len(sys.argv)
-	if argc < 4 or argc > 12:
-		usage = 'Usage: {} [-U] [-e little|big] [-b 64|32|16|8] [-a 64|32] [-t] <process name or PID> <old value> <new value>\n'.format(__file__)
+	if argc < 4 or argc > 11:
+		usage = 'Usage: {} [-U] [-e little|big] [-b 64|32|16|8] [-a 64|32] <process name or PID> <old value> <new value>\n'.format(__file__)
 		usage += 'The \'-U\' option is for mobile instrumentation.\n'
 		usage += 'The \'-e\' option is to specify the endianness. Little is the default.\n'
 		usage += 'The \'-b\' option is to specify the size of the variable in bits. 32 is the default.\n'
