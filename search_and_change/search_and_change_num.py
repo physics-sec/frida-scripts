@@ -120,28 +120,23 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits, al
 		var byte_array = get_byte_array(new_value, isLittleEndian, bits, signed);
 
 		console.log("[i] searching for " + pattern);
-		console.log("")
-		console.log("List of matches:")
+		console.log("");
+		console.log("List of matches:");
 
 		var ranges = Process.enumerateRangesSync({protection: 'rw-', coalesce: true});
 		
 		var counter = 0;
 		var addresses = {};
 		for (var i = 0, len = ranges.length; i < len; i++) {
-			Memory.scan(ranges[i].base, ranges[i].size, pattern, {
-				onMatch: function(address, size) {
-					if (!mustBeAlligned || (mustBeAlligned && isAlligned(address, alignment))) {
-						addresses[counter ++] = address;
-						console.log("(" + counter.toString() + ") " + address);
-					}
-				},
-				onError: function(reason) {
-					//console.log('[!] There was an error scanning memory:' + reason);
-				},
-				onComplete: function() {
-					//
+			console.log("paso")
+			var matches = Memory.scanSync(ranges[i].base, ranges[i].size, pattern);
+			for (var i = 0; i < matches.length; i++) {
+				var address = matches[i].address;
+				if (!mustBeAlligned || (mustBeAlligned && isAlligned(address, alignment))) {
+					addresses[counter ++] = address;
+					console.log("(" + counter + ") " + address);
 				}
-			});
+			}
 		}
 
 		recv('input', function(value) {
