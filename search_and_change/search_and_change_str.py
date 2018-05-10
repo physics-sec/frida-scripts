@@ -67,10 +67,14 @@ def main(target_process, old_string, new_string, usb, mode, testing):
 		}
 		console.log("")
 
+		// get array of ranges of memory that are readable and writable
 		var ranges = Process.enumerateRangesSync({protection: 'rw-', coalesce: true});
 
 		for (var i = 0, len = ranges.length; i < len; i++) {
-			Memory.scan(ranges[i].base, ranges[i].size, pattern, {
+			var range = ranges[i];
+
+			// scan memory to find 'old_str' ocurrencies
+			Memory.scan(range.base, range.size, pattern, {
 				onMatch: function(address, size_str) {
 					if (testing) {
 						console.log("[+] found at " + address);
@@ -78,11 +82,13 @@ def main(target_process, old_string, new_string, usb, mode, testing):
 					else {
 						console.log("[+] hit at " + address);
 						if (mode == "string") {
+							// write with null-byte at the end
 							Memory.writeUtf8String(address, new_str);
 						}
 						else {
+							// write without null-byte at the end
 							Memory.writeByteArray(address, byte_array);
-						}						
+						}
 					}
 				},
 				onError: function(reason) {
