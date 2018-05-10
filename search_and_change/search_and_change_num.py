@@ -10,6 +10,9 @@ except ImportError:
 
 matches = None
 
+def err(msg):
+	sys.stderr.write(msg + '\n')
+
 def read(msg): # read input from user
 	def _invalido():
 		sys.stdout.write('\033[F\r') # Cursor up one line
@@ -38,7 +41,7 @@ def read(msg): # read input from user
 def on_message(message, data):
 	global matches
 	if message['type'] == 'error':
-		print('[!] ' + message['stack'])
+		err('[!] ' + message['stack'])
 	elif message['type'] == 'send':
 		matches =  message['payload']
 	else:

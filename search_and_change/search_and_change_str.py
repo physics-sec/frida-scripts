@@ -7,9 +7,12 @@ try:
 except ImportError:
 	sys.exit('install frida\nsudo pip3 install frida')
 
+def err(msg):
+	sys.stderr.write(msg + '\n')
+
 def on_message(message, data):
 	if message['type'] == 'error':
-		print('[!] ' + message['stack'])
+		err('[!] ' + message['stack'])
 	elif message['type'] == 'send':
 		print('[i] ' + message['payload'])
 	else:
