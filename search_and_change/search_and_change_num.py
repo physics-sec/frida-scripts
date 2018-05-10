@@ -8,6 +8,7 @@ try:
 except ImportError:
 	sys.exit('install frida\nsudo pip3 install frida')
 
+# number of times that 'old_value' was find in memory
 matches = None
 
 def err(msg):
@@ -43,6 +44,7 @@ def on_message(message, data):
 	if message['type'] == 'error':
 		err('[!] ' + message['stack'])
 	elif message['type'] == 'send':
+		# recive amount of matches from js script
 		matches =  message['payload']
 	else:
 		print(message)
@@ -125,27 +127,38 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits, al
 		var bits = %d;
 		var alignment = %d;
 		var mustBeAlligned = alignment != 0;
+		// pattern of bytes that frida will search in memory
 		var pattern = get_pattern(old_value, isLittleEndian, bits, signed);
+		// new bytes that will be written
 		var byte_array = get_byte_array(new_value, isLittleEndian, bits, signed);
 
 		console.log("[i] searching for " + pattern);
 		console.log("");
 		console.log("List of matches:");
 
+		// get array of ranges of memory that are readable and writable
 		var ranges = Process.enumerateRangesSync({protection: 'rw-', coalesce: true});
+
 		var counter = 0;
 		var addresses = {};
+
 		for (var i = 0; i < ranges.length; i++) {
 			var range = ranges[i];
+
+			// get array of addresses where 'old_value' was found in this range of memory
 			var matches = Memory.scanSync(range.base, range.size, pattern);
 			for (var j = 0; j < matches.length; j++) {
 				var address = matches[j].address;
+
+				// check if address is alligned in memory if user wants it to be
 				if (!mustBeAlligned || (mustBeAlligned && isAlligned(address, alignment))) {
+					// save match in array at index counter
 					addresses[counter ++] = address;
 				}
 			}
 		}
 
+		// show all matches found to user
 		var lenMax = counter.toString().length
 		for (var i = 0; i < counter; i++) {
 			var index = (i + 1).toString();
@@ -153,8 +166,10 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits, al
 			console.log("(" + index + ") " + padding + addresses[i]);
 		}
 
+		// send amount of matches to python
 		send(counter);
 
+		// recive index selected by user from python
 		recv('input', function(value) {
 			Memory.writeByteArray(addresses[value.payload - 1], byte_array);
 		});
@@ -163,6 +178,7 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits, al
 
 	script.on('message', on_message)
 	script.load()
+	# wait for scan to finish
 	while matches is None:
 		pass
 	if matches == 0:
@@ -171,6 +187,7 @@ def main(target_process, usb, old_value, new_value, endianness, signed, bits, al
 		print('\nIndicate which address you want to overwrite. Press <Enter> to detach.')
 		index = read('index of address:')
 		if index != '':
+			# send index selected by user to js script
 			script.post({'type': 'input', 'payload': int(index)})
 			print('address overwritten!')
 			time.sleep(1)
