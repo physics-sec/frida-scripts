@@ -1,6 +1,7 @@
 ## Frida examples
 
-A small collection of program that use frida in different ways.
+A small collection of programs that use frida in different ways.
+The 'search_and_change' ones are by far the most complex. They look for a number or string in a process and replace it with whatever the user wants.
 
 
 for more:
