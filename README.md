@@ -34,3 +34,9 @@ A program that shows GET requests and their response.
 
 code by: [Keith](https://stackoverflow.com/questions/46711786/android-hooking-https-traffic-using-frida)
 
+### misc
+
+A collection of scripts that facilitates information gathering.
+
+code by: [poxyran](https://github.com/poxyran/misc)
+
