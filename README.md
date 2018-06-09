@@ -1,13 +1,32 @@
-## Frida examples
+## Frida tools
 
-A small collection of programs that use frida in different ways.
+This repository contains several scripts that implement Frida for multiple purposes.
 
+### examples
 
-The 'search_and_change' ones are by far the most complex. They look for a number or string in a process and replace it with whatever the user wants.
+A small collection of programs that use frida in very simple ways.
 
+### search_and_change
 
-for more:
+It consist of two scripts, they look for a number or string in a process and replace it with whatever the user wants. Works for Windows, linux, Android and IOS.
 
-https://github.com/poxyran/misc
+### Android
 
-https://gist.github.com/shuffle2/9b9e9cc093060be975f9
+#### URL
+
+Shows which URLs are accessed by the app using `new URL('https://www.foo.com')`.
+
+#### certificatePinning
+
+This script bypassing certificate-pinning and forces an app to use an user supplied certificate. This way is possible to proxy the app's traffic.
+code by: [Piergiovanni Cipolloni](https://techblog.mediaservice.net/2017/07/universal-android-ssl-pinning-bypass-with-frida/) 
+ 
+#### getLoadedClasses
+
+A simple script that shows what classes are imported by the app.
+
+#### httpGet
+
+A program that shows GET requests and their response.
+code by: [Keith](https://stackoverflow.com/questions/46711786/android-hooking-https-traffic-using-frida)
+
