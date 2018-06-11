@@ -73,15 +73,13 @@ Java.perform(function () {
 		var originalReturn = this.getInputStream.apply(this, arguments);
 
 		var msg = {};
-		//msg.encoding = this.getContentEncoding();
 		msg.metodo = this.getRequestMethod();
 		msg.url = this.getURL().toString();
 
 		if (this.getHeaderFields) {
 			var Keys = this.getHeaderFields().keySet().toArray();
 			var Values = this.getHeaderFields().values().toArray();
-			responseHeaders = "";
-			headers = {};
+			var headers = {};
 			for (var key in Keys) {
 				if (Keys[key] && Keys[key] !== null && Values[key]) {
 					headers[Keys[key]] = Values[key].toString();
@@ -91,7 +89,7 @@ Java.perform(function () {
 		}
 
 		if ("gzip" == this.getContentEncoding()) {
-			var stream = InputStreamReader.$new( GZIPInputStream.$new(originalReturn));
+			var stream = InputStreamReader.$new(GZIPInputStream.$new(originalReturn));
 		}
 		else {
 			var stream = InputStreamReader.$new(originalReturn);
