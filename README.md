@@ -28,9 +28,9 @@ code by: [Piergiovanni Cipolloni](https://techblog.mediaservice.net/2017/07/univ
 
 A simple script that shows what classes are imported by the app.
 
-#### httpGet
+#### httpGetPost
 
-A program that shows GET requests and their response.
+A program that shows GET and POST requests and their responses.
 
 code by: [Keith](https://stackoverflow.com/questions/46711786/android-hooking-https-traffic-using-frida)
 
