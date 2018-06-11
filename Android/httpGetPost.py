@@ -109,7 +109,9 @@ Java.perform(function () {
 		BufferedReaderStream.close();
 		baos.flush();
 		msg.response = responseBody.replace(/[^\x20-\x7E]+/g, '');
-		msg.trimmed = (msg.response.length < responseBody.length);
+		if (msg.response.length < responseBody.length) {
+			msg.trimmed = responseBody.length - msg.response.length;
+		}
 
 		console.log("\\n\\n" + JSON.stringify(msg, null, 2));
 
