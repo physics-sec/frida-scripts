@@ -81,14 +81,13 @@ Java.perform(function () {
 			var Keys = this.getHeaderFields().keySet().toArray();
 			var Values = this.getHeaderFields().values().toArray();
 			responseHeaders = "";
+			headers = {};
 			for (var key in Keys) {
 				if (Keys[key] && Keys[key] !== null && Values[key]) {
-					responseHeaders += Keys[key] + ": " + Values[key].toString() + "\\n";
-				} else if (Values[key]) {
-					responseHeaders += Values[key].toString() + "\\n";
+					headers[Keys[key]] = Values[key].toString();
 				}
 			}
-			//msg.responseHeaders = responseHeaders;
+			msg.responseHeaders = headers;
 		}
 
 		if ("gzip" == this.getContentEncoding()) {
