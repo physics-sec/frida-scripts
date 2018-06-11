@@ -62,28 +62,43 @@ Java.perform(function () {
 			var ByteArrayOutputStream = Java.use(classes[i]);
 			continue;
 		}
+		if (name == "GZIPInputStream") {
+			var GZIPInputStream = Java.use(classes[i]);
+			continue;
+		}
 	}
 
 	HttpURLConnectionImpl.getInputStream.implementation = function () {
 
 		var originalReturn = this.getInputStream.apply(this, arguments);
 
-		var msg = "\\n\\n" +  "			Request:" + "\\n";
-		msg += this.getRequestMethod() + "\\n";
-		msg += this.getURL().toString() + "\\n";
-		var responseBody = "";
-		var stream = InputStreamReader.$new(originalReturn);
+		var mensaje = {};
+		mensaje.encoding = this.getContentEncoding();
+		mensaje.metodo = this.getRequestMethod();
+		mensaje.url = this.getURL().toString();
+
+		if ("gzip" == this.getContentEncoding()) {
+			var stream = InputStreamReader.$new( GZIPInputStream.$new(originalReturn));
+		}
+		else {
+			var stream = InputStreamReader.$new(originalReturn);
+		}
+
 		var baos = ByteArrayOutputStream.$new();
 		var buffer = -1;
 		var BufferedReaderStream = BufferedReader.$new(stream);
+		var responseBody = "";
 		while ((buffer = stream.read()) != -1) {
 			baos.write(buffer);
 			responseBody += String.fromCharCode(buffer);
 		}
 		BufferedReaderStream.close();
 		baos.flush();
-		msg += "			Response:" + "\\n" + responseBody;
-		console.log(msg);
+		mensaje.response = responseBody.replace(/[^\x20-\x7E]+/g, '');
+
+		mensaje.trimmed = (mensaje.response.length < responseBody.length);
+
+		console.log( "\\n\\n" + JSON.stringify(mensaje, null, 2));
 
 		return originalReturn;
 	};
