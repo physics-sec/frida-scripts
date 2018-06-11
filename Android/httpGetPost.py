@@ -66,15 +66,13 @@ Java.perform(function () {
 
 	HttpURLConnectionImpl.getInputStream.implementation = function () {
 
-		if (this.getRequestMethod() == "POST") { // no funciona con post por alguna razon
-			return this.getInputStream.apply(this, arguments);
-		}
+		var originalReturn = this.getInputStream.apply(this, arguments);
+
 		var msg = "\\n\\n" +  "			Request:" + "\\n";
 		msg += this.getRequestMethod() + "\\n";
 		msg += this.getURL().toString() + "\\n";
 		var responseBody = "";
-		var stream = InputStreamReader.$new(this.getInputStream.apply(this, arguments));
-
+		var stream = InputStreamReader.$new(originalReturn);
 		var baos = ByteArrayOutputStream.$new();
 		var buffer = -1;
 		var BufferedReaderStream = BufferedReader.$new(stream);
@@ -86,7 +84,8 @@ Java.perform(function () {
 		baos.flush();
 		msg += "			Response:" + "\\n" + responseBody;
 		console.log(msg);
-		return this.getInputStream.apply(this, arguments);
+
+		return originalReturn;
 	};
 });
 """)
