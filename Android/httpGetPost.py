@@ -46,20 +46,8 @@ Java.perform(function () {
 			var HttpURLConnectionImpl = Java.use(classes[i]);
 			continue;
 		}
-		if (name == "BufferedInputStream") {
-			var BufferedInputStream = Java.use(classes[i]);
-			continue;
-		}
 		if (name == "InputStreamReader") {
 			var InputStreamReader = Java.use(classes[i]);
-			continue;
-		}
-		if (name == "BufferedReader") {
-			var BufferedReader = Java.use(classes[i]);
-			continue;
-		}
-		if (name == "ByteArrayOutputStream") {
-			var ByteArrayOutputStream = Java.use(classes[i]);
 			continue;
 		}
 		if (name == "GZIPInputStream") {
@@ -95,16 +83,11 @@ Java.perform(function () {
 			var stream = InputStreamReader.$new(originalReturn);
 		}
 
-		var baos = ByteArrayOutputStream.$new();
 		var buffer = -1;
-		var BufferedReaderStream = BufferedReader.$new(stream);
 		var responseBody = "";
 		while ((buffer = stream.read()) != -1) {
-			baos.write(buffer);
 			responseBody += String.fromCharCode(buffer);
 		}
-		BufferedReaderStream.close();
-		baos.flush();
 		msg.response = responseBody.replace(/[^\x20-\x7E]+/g, '');
 		if (msg.response.length < responseBody.length) {
 			msg.trimmed = responseBody.length - msg.response.length;
