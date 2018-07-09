@@ -39,6 +39,7 @@ def main():
 /*
 	code from:
 	https://techblog.mediaservice.net/2017/07/universal-android-ssl-pinning-bypass-with-frida/
+	https://developer.android.com/training/articles/security-ssl#UnknownCa
 */
 Java.perform(function (){
 	console.log("");
