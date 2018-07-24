@@ -5,6 +5,7 @@
 # https://github.com/Fuzion24/JustTrustMe/blob/master/app/src/main/java/just/trust/me/Main.java
 # https://github.com/ac-pm/Inspeckage/blob/master/app/src/main/java/mobi/acpm/inspeckage/hooks/SSLPinningHook.java
 # https://github.com/datatheorem/TrustKit-Android/tree/master/trustkit/src/main/java/com/datatheorem/android/trustkit/pinning
+# https://gist.github.com/matthewromano/4178946
 
 import sys
 import time
