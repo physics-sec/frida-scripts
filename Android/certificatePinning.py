@@ -10,6 +10,7 @@
 # https://github.com/iSECPartners/Android-SSL-TrustKiller/tree/master/src/com/android/SSLTrustKiller
 # https://github.com/iSECPartners/android-ssl-bypass
 # https://github.com/WooyunDota/DroidSSLUnpinning
+# https://gist.github.com/oleavr/3ca67a173ff7d207c6b8c3b0ca65a9d8
 
 import sys
 import time
