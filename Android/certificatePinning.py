@@ -9,6 +9,7 @@
 # https://github.com/ac-pm/SSLUnpinning_Xposed/tree/master/app/src/main/java/mobi/acpm/sslunpinning
 # https://github.com/iSECPartners/Android-SSL-TrustKiller/tree/master/src/com/android/SSLTrustKiller
 # https://github.com/iSECPartners/android-ssl-bypass
+# https://github.com/WooyunDota/DroidSSLUnpinning
 
 import sys
 import time
