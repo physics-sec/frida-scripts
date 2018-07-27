@@ -22,7 +22,7 @@ Shows which URLs are accessed by the app using `new URL('https://www.foo.com')`.
 
 This script can be use for bypassing certificate-pinning and force an app to use a user-supplied SSL certificate. Once this is done, it should be possible to proxy all the app's traffic.
 
-code by: [Piergiovanni Cipolloni](https://techblog.mediaservice.net/2017/07/universal-android-ssl-pinning-bypass-with-frida/) 
+code by: [WooyunDota](https://github.com/WooyunDota/DroidSSLUnpinning) 
  
 #### getLoadedClasses
 
