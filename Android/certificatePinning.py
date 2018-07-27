@@ -38,8 +38,8 @@ def on_message(message, data):
 			print_result(message)
 
 def kill_process(target_process):
-    cmd = "adb shell pm clear {} 1> /dev/null".format(target_process)
-    os.system(cmd)
+	cmd = "adb shell pm clear {} 1> /dev/null".format(target_process)
+	os.system(cmd)
 
 def main():
 	target_process = sys.argv[1]
@@ -49,10 +49,10 @@ def main():
 	session = device.attach(pid)
 	script  = session.create_script("""
 /*
--------------------------------------------------------------------------
-	the js code is from the DroidSSLUnpinning repository of WooyunDota
-	https://github.com/WooyunDota/DroidSSLUnpinning
--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+    the js code is from the DroidSSLUnpinning repository of WooyunDota
+    https://github.com/WooyunDota/DroidSSLUnpinning
+--------------------------------------------------------------------------
 */
 Java.perform(function() {
 

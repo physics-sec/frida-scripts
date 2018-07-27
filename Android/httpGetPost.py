@@ -83,8 +83,8 @@ Java.perform(function () {
 			var stream = InputStreamReader.$new(originalReturn);
 		}
 
-		var buffer = -1;
 		var responseBody = "";
+		var buffer;
 		while ((buffer = stream.read()) != -1) {
 			responseBody += String.fromCharCode(buffer);
 		}
