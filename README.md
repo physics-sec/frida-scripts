@@ -2,6 +2,8 @@
 
 This repository contains several scripts that implement Frida for multiple purposes.
 
+### Check the *Wiki* for script templates!
+___
 ### examples
 
 A small collection of programs that use frida in very simple ways.
