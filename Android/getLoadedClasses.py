@@ -44,7 +44,7 @@ Java.perform(function () {
 		 return -1;
 	});
 
-	for (i = 0; i < classes.length; i++) {
+	for (var i = 0; i < classes.length; i++) {
 		console.log(classes[i]);
 	}
 });
