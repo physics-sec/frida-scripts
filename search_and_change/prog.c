@@ -6,7 +6,7 @@ int global = 112233;
 
 int main(int argc, char * argv[])
 {
-	char str[] = "texto de prueba";
+	char str[] = "test text";
 	int64_t num = 12345;
 	int count = 0;
 	while(1)
