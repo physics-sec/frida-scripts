@@ -11,6 +11,7 @@ int main(int argc, char * argv[])
 	int count = 0;
 	while(1)
 	{
+        printf("PID: %d\n", getpid());
 		printf("count = %d\n", count++);
 		printf("str = %s\n", str);
 		printf("num = %ld\n", num);
